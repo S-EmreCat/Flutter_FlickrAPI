@@ -15,7 +15,7 @@ class _DetailPageState extends State<DetailPage> {
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 50,
-        title: Text("Detail Page"),
+        title: Text("kafayı yedim Page"),
       ),
       body: Container(
         child: Center(
