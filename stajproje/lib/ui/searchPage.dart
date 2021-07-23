@@ -18,7 +18,6 @@ class _SearchPageState extends State<SearchPage> {
   SearchModel searchResult = new SearchModel();
   search(String searchKey) async {
     searchResult = await service.getSearchResults(searchKey);
-
     setState(() {});
   }
 
