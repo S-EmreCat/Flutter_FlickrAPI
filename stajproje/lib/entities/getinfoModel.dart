@@ -179,7 +179,7 @@ class Urls {
 
   Urls.fromJson(Map<String, dynamic> json) {
     if (json['url'] != null) {
-      url = new List<Url>();
+      url = <Url>[];
       json['url'].forEach((v) {
         url.add(new Url.fromJson(v));
       });

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:stajproje/entities/getinfoModel.dart';
 import 'package:stajproje/entities/searchModel.dart';
 import 'package:stajproje/service/service.dart';
 import 'package:stajproje/ui/detailPage.dart';
@@ -16,8 +17,16 @@ TextEditingController searchController = new TextEditingController();
 
 class _SearchPageState extends State<SearchPage> {
   SearchModel searchResult = new SearchModel();
+  GetInfoModel getinfoResult = GetInfoModel();
+  int photoindex;
+
   search(String searchKey) async {
     searchResult = await service.getSearchResults(searchKey);
+    setState(() {});
+  }
+
+  getinfofnc(String photoid) async {
+    getinfoResult = await service.getInfoResults(photoid);
     setState(() {});
   }
 
@@ -36,72 +45,78 @@ class _SearchPageState extends State<SearchPage> {
         child: Column(
           children: [
             Expanded(
-                child: searchResult.photos == null
-                    ? Container(child: Text(""))
-                    : ListView.builder(
-                        scrollDirection: Axis.vertical,
-                        shrinkWrap: true,
-                        itemCount: searchResult.photos.photo.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          var data = searchResult.photos.photo;
-                          if (data.length > 0)
-                            return InkWell(
-                                onTap: () {
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                      builder: (context) => DetailPage(
-                                            title: data[index].title.toString(),
-                                          )));
-                                },
-                                child: Container(
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(
-                                            width: 1,
-                                            color: Color(0xffEAEAEA))),
-                                    margin: EdgeInsets.fromLTRB(10, 5, 10, 0),
-                                    padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        Container(
-                                            padding:
-                                                EdgeInsets.fromLTRB(0, 3, 0, 3),
-                                            child: Text(
-                                                "title " + data[index].title,
-                                                style: TextStyle(
-                                                    fontWeight:
-                                                        FontWeight.w600))),
-                                        Container(
-                                            padding:
-                                                EdgeInsets.fromLTRB(0, 3, 0, 3),
-                                            child: Text("ownerid: " +
-                                                data[index].owner)),
-                                        Container(
-                                            width: sw,
-                                            child: Text(
-                                                "photo id:" + data[index].id,
-                                                textAlign: TextAlign.right,
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.w300,
-                                                    fontSize: 12)))
-                                      ],
-                                    )));
-                          else
-                            return Container(child: Text("Sonuç bulunamadı"));
-                        },
-                        padding: EdgeInsets.all(1),
-                      )),
+              child: searchResult.photos == null
+                  ? Container(child: Text(""))
+                  : ListView.builder(
+                      scrollDirection: Axis.vertical,
+                      shrinkWrap: true,
+                      itemCount: searchResult.photos.photo.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        var data = searchResult.photos.photo;
+                        var infodata = getinfoResult.photo;
+                        photoindex = index;
+
+                        if (data.length > 0) {
+                          return InkWell(
+                            onTap: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => DetailPage(
+                                        title: data[index].title.toString(),
+                                      )));
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                      width: 1, color: Color(0xffEAEAEA))),
+                              margin: EdgeInsets.fromLTRB(10, 5, 10, 0),
+                              padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
+                              child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                        padding:
+                                            EdgeInsets.fromLTRB(0, 3, 0, 3),
+                                        child: Text(
+                                            "title $index " + data[index].title,
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w600))),
+                                    Container(
+                                      padding: EdgeInsets.fromLTRB(0, 3, 0, 3),
+                                      child: Text("ownerid: " + data[index].id),
+                                    ),
+                                    Container(
+                                        width: sw,
+                                        child: Text(
+                                          "photo id:" + data[index].id,
+                                          textAlign: TextAlign.right,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w300,
+                                              fontSize: 12),
+                                        )
+
+                                        //Text(data[index].id),
+                                        ),
+                                  ]),
+                            ),
+                          );
+                        } else
+                          return Container(
+                            child: Text("Sonuç bulunamadı"),
+                          );
+                      },
+                      padding: EdgeInsets.all(1),
+                    ),
+            ),
             Container(
               height: sh / 13,
-              child: (RaisedButton(
+              child: (ElevatedButton(
                 onPressed: () {
                   showAlertDialog(context);
                   searchController.clear();
                 },
-                color: Colors.white,
+                style: ElevatedButton.styleFrom(primary: Colors.white),
                 child: Ink(
                   child: Container(
                     decoration: BoxDecoration(
@@ -113,7 +128,7 @@ class _SearchPageState extends State<SearchPage> {
                     constraints: BoxConstraints(minHeight: 50),
                     alignment: Alignment.center,
                     child: Text(
-                      "Arama",
+                      "Pop-up aç",
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Colors.black),
                     ),
@@ -172,12 +187,12 @@ class _SearchPageState extends State<SearchPage> {
           Container(
             margin: EdgeInsets.fromLTRB(0, 20, 0, 0),
             height: 50,
-            child: (RaisedButton(
+            child: (ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
                 search(searchController.text);
               },
-              color: Colors.white,
+              style: ElevatedButton.styleFrom(primary: Colors.white),
               child: Ink(
                 child: Container(
                   constraints: BoxConstraints(minHeight: 50),
@@ -195,8 +210,6 @@ class _SearchPageState extends State<SearchPage> {
       ),
       actions: [],
     );
-
-    // show the dialog
     showDialog(
       context: context,
       builder: (BuildContext context) {

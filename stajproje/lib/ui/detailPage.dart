@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:stajproje/entities/getinfoModel.dart';
+import 'package:stajproje/service/service.dart';
 
 class DetailPage extends StatefulWidget {
   final String title;
@@ -7,7 +9,22 @@ class DetailPage extends StatefulWidget {
   _DetailPageState createState() => _DetailPageState();
 }
 
+AppService appService = AppService();
+
 class _DetailPageState extends State<DetailPage> {
+  GetInfoModel getinfoResult = GetInfoModel();
+
+  getinfofnc(String photoid) async {
+    getinfoResult = await appService.getInfoResults(photoid);
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    getinfofnc("51324835454");
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     double sh = MediaQuery.of(context).size.height - 50;
@@ -15,7 +32,7 @@ class _DetailPageState extends State<DetailPage> {
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 50,
-        title: Text("kafayı yedim Page"),
+        title: Text("Detail Page"),
       ),
       body: Container(
         child: Center(
@@ -28,12 +45,14 @@ class _DetailPageState extends State<DetailPage> {
                   height: sh / 12,
                   child: Center(child: Text("${widget.title}"))),
               Container(
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                  ),
-                  height: (sh / 10) * 4,
-                  child:
-                      Center(child: Text("getSizeApide source küçük resim"))),
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                ),
+                height: (sh / 10) * 4,
+                child: Center(
+                  child: Text("resim"),
+                ),
+              ),
               Container(
                   decoration: BoxDecoration(
                     color: Colors.grey,
