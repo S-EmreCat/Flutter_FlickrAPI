@@ -32,7 +32,8 @@ class _DetailPageState extends State<DetailPage> {
                     color: Colors.red,
                   ),
                   height: (sh / 10) * 4,
-                  child: Center(child: Text("resim"))),
+                  child:
+                      Center(child: Text("getSizeApide source küçük resim"))),
               Container(
                   decoration: BoxDecoration(
                     color: Colors.grey,
