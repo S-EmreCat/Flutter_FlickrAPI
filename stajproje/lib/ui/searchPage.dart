@@ -16,16 +16,25 @@ AppService service = new AppService();
 TextEditingController searchController = new TextEditingController();
 
 class _SearchPageState extends State<SearchPage> {
-  SearchModel searchResult = new SearchModel();
+  SearchModel searchResult = SearchModel();
   GetInfoModel getinfoResult = GetInfoModel();
-  int photoindex;
+  List<String> myownameslist = [];
+  List<String> mydesclist = [];
 
-  search(String searchKey) async {
+  Future search(String searchKey) async {
     searchResult = await service.getSearchResults(searchKey);
+    // getinfofnc();
+    mydesclist.clear();
+    myownameslist.clear();
+    for (var i in searchResult.photos.photo) {
+      getinfoResult = await service.getInfoResults(i.id);
+      myownameslist.add(getinfoResult.photo.owner.username);
+      mydesclist.add(getinfoResult.photo.description.sContent);
+    }
     setState(() {});
   }
 
-  getinfofnc(String photoid) async {
+  getinfofnc(photoid) async {
     getinfoResult = await service.getInfoResults(photoid);
     setState(() {});
   }
@@ -53,15 +62,15 @@ class _SearchPageState extends State<SearchPage> {
                       itemCount: searchResult.photos.photo.length,
                       itemBuilder: (BuildContext context, int index) {
                         var data = searchResult.photos.photo;
-                        var infodata = getinfoResult.photo;
-                        photoindex = index;
-
+                        // getinfofnc(data[index].id);
+                        // var infodata = getinfoResult.photo;
                         if (data.length > 0) {
                           return InkWell(
                             onTap: () {
                               Navigator.of(context).push(MaterialPageRoute(
                                   builder: (context) => DetailPage(
                                         title: data[index].title.toString(),
+                                        photoid: data[index].id,
                                       )));
                             },
                             child: Container(
@@ -78,23 +87,28 @@ class _SearchPageState extends State<SearchPage> {
                                     Container(
                                         padding:
                                             EdgeInsets.fromLTRB(0, 3, 0, 3),
-                                        child: Text(
-                                            "title $index " + data[index].title,
+                                        child: Text(data[index].title,
                                             style: TextStyle(
                                                 fontWeight: FontWeight.w600))),
                                     Container(
                                       padding: EdgeInsets.fromLTRB(0, 3, 0, 3),
-                                      child: Text("ownerid: " + data[index].id),
+                                      child: Text(myownameslist[index]),
                                     ),
                                     Container(
                                         width: sw,
-                                        child: Text(
-                                          "photo id:" + data[index].id,
-                                          textAlign: TextAlign.right,
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w300,
-                                              fontSize: 12),
-                                        )
+                                        child: (data[index].id == "")
+                                            ? Text(
+                                                "no desc",
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.w300,
+                                                    fontSize: 12),
+                                              )
+                                            : Text(
+                                                mydesclist[index],
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.w300,
+                                                    fontSize: 12),
+                                              )
 
                                         //Text(data[index].id),
                                         ),
@@ -128,7 +142,7 @@ class _SearchPageState extends State<SearchPage> {
                     constraints: BoxConstraints(minHeight: 50),
                     alignment: Alignment.center,
                     child: Text(
-                      "Pop-up aç",
+                      "Pop-up",
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Colors.black),
                     ),
@@ -146,7 +160,7 @@ class _SearchPageState extends State<SearchPage> {
     // set up the AlertDialog
     AlertDialog alert = AlertDialog(
       content: Container(
-        height: 150,
+        height: 125,
         child: Column(children: [
           Container(),
           Container(

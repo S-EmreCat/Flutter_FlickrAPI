@@ -4,7 +4,9 @@ import 'package:stajproje/service/service.dart';
 
 class DetailPage extends StatefulWidget {
   final String title;
-  DetailPage({this.title});
+  final String photoid;
+  DetailPage({this.title, this.photoid});
+
   @override
   _DetailPageState createState() => _DetailPageState();
 }
@@ -14,14 +16,13 @@ AppService appService = AppService();
 class _DetailPageState extends State<DetailPage> {
   GetInfoModel getinfoResult = GetInfoModel();
 
-  getinfofnc(String photoid) async {
-    getinfoResult = await appService.getInfoResults(photoid);
-    setState(() {});
+  getinfofnc(String pid) async {
+    getinfoResult = await appService.getInfoResults(pid);
   }
 
   @override
   void initState() {
-    getinfofnc("51324835454");
+    getinfofnc("${widget.photoid}");
     super.initState();
   }
 
