@@ -21,6 +21,8 @@ class _SearchPageState extends State<SearchPage> {
   List<String> myownameslist = [];
   List<String> mydesclist = [];
 
+  // TODO: Future olmadan çalıştırmayı dene
+  // FIXME: 20 saniye gecikmeli yükleniyor veriler
   Future search(String searchKey) async {
     searchResult = await service.getSearchResults(searchKey);
     // getinfofnc();
@@ -67,9 +69,11 @@ class _SearchPageState extends State<SearchPage> {
                         if (data.length > 0) {
                           return InkWell(
                             onTap: () {
+                              // TODO: list tile ile icon + title yazdırılabiliyor oraya bak icon
+                              debugPrint(data[index].id);
                               Navigator.of(context).push(MaterialPageRoute(
                                   builder: (context) => DetailPage(
-                                        title: data[index].title.toString(),
+                                        title: data[index].title,
                                         photoid: data[index].id,
                                       )));
                             },

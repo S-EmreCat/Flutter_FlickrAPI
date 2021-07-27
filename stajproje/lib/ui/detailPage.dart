@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:stajproje/entities/getinfoModel.dart';
+import 'package:stajproje/entities/getsizesModel.dart';
 import 'package:stajproje/service/service.dart';
 
 class DetailPage extends StatefulWidget {
@@ -13,16 +13,10 @@ class DetailPage extends StatefulWidget {
 
 AppService appService = AppService();
 
+// TODO: getSizes Apiden resim çekilecek.
 class _DetailPageState extends State<DetailPage> {
-  GetInfoModel getinfoResult = GetInfoModel();
-
-  getinfofnc(String pid) async {
-    getinfoResult = await appService.getInfoResults(pid);
-  }
-
   @override
   void initState() {
-    getinfofnc("${widget.photoid}");
     super.initState();
   }
 
@@ -30,6 +24,8 @@ class _DetailPageState extends State<DetailPage> {
   Widget build(BuildContext context) {
     double sh = MediaQuery.of(context).size.height - 50;
     double sw = MediaQuery.of(context).size.width;
+    print(MediaQuery.of(context).size.width);
+    debugPrint(MediaQuery.of(context).size.height.toString());
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 50,
@@ -46,20 +42,23 @@ class _DetailPageState extends State<DetailPage> {
                   height: sh / 12,
                   child: Center(child: Text("${widget.title}"))),
               Container(
+                decoration: BoxDecoration(),
+                height: (sh / 10) * 4,
+                child: Center(
+                    child: Image.network(
+                  "https://live.staticflickr.com/65535/51336994303_e2163d33e7_s.jpg",
+                )),
+                padding: EdgeInsets.only(bottom: 2, top: 2),
+              ),
+              Container(
                 decoration: BoxDecoration(
                   color: Colors.red,
                 ),
                 height: (sh / 10) * 4,
                 child: Center(
-                  child: Text("resim"),
+                  child: Text("harita gelecek pid: +${widget.photoid}"),
                 ),
               ),
-              Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey,
-                  ),
-                  height: (sh / 10) * 4,
-                  child: Center(child: Text("harita"))),
               Container(
                 decoration: BoxDecoration(
                   color: Colors.green,
