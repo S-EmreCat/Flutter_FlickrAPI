@@ -16,18 +16,16 @@ AppService service = new AppService();
 TextEditingController searchController = new TextEditingController();
 
 class _SearchPageState extends State<SearchPage> {
-  SearchModel searchResult = SearchModel();
-  GetInfoModel getinfoResult = GetInfoModel();
+  SearchModel searchResult = new SearchModel();
+  GetInfoModel getinfoResult = new GetInfoModel();
   List<String> myownameslist = [];
   List<String> mydesclist = [];
 
   // TODO: Future olmadan çalıştırmayı dene
   // FIXME: 20 saniye gecikmeli yükleniyor veriler
-  Future search(String searchKey) async {
+  search(String searchKey) async {
     searchResult = await service.getSearchResults(searchKey);
     // getinfofnc();
-    mydesclist.clear();
-    myownameslist.clear();
     for (var i in searchResult.photos.photo) {
       getinfoResult = await service.getInfoResults(i.id);
       myownameslist.add(getinfoResult.photo.owner.username);
@@ -50,14 +48,19 @@ class _SearchPageState extends State<SearchPage> {
       appBar: AppBar(
         backgroundColor: Color(0xffE5E5E5),
         toolbarHeight: 50,
-        title: Text("Search Page", style: TextStyle(color: Colors.black)),
+        title: Text(
+          "Search Page",
+          style: TextStyle(color: Colors.black),
+        ),
       ),
       body: Container(
         child: Column(
           children: [
             Expanded(
               child: searchResult.photos == null
-                  ? Container(child: Text(""))
+                  ? Container(
+                      child: Center(child: Text("No Result")),
+                    )
                   : ListView.builder(
                       scrollDirection: Axis.vertical,
                       shrinkWrap: true,
@@ -71,17 +74,23 @@ class _SearchPageState extends State<SearchPage> {
                             onTap: () {
                               // TODO: list tile ile icon + title yazdırılabiliyor oraya bak icon
                               debugPrint(data[index].id);
-                              Navigator.of(context).push(MaterialPageRoute(
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
                                   builder: (context) => DetailPage(
-                                        title: data[index].title,
-                                        photoid: data[index].id,
-                                      )));
+                                    title: data[index].title,
+                                    photoid: data[index].id,
+                                  ),
+                                ),
+                              );
                             },
                             child: Container(
                               decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(
-                                      width: 1, color: Color(0xffEAEAEA))),
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  width: 1,
+                                  color: Color(0xffEAEAEA),
+                                ),
+                              ),
                               margin: EdgeInsets.fromLTRB(10, 5, 10, 0),
                               padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
                               child: Column(
@@ -89,33 +98,33 @@ class _SearchPageState extends State<SearchPage> {
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
                                     Container(
-                                        padding:
-                                            EdgeInsets.fromLTRB(0, 3, 0, 3),
-                                        child: Text(data[index].title,
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w600))),
+                                      padding: EdgeInsets.fromLTRB(0, 3, 0, 3),
+                                      child: Text(
+                                        data[index].title,
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                    ),
                                     Container(
                                       padding: EdgeInsets.fromLTRB(0, 3, 0, 3),
                                       child: Text(myownameslist[index]),
                                     ),
                                     Container(
-                                        width: sw,
-                                        child: (data[index].id == "")
-                                            ? Text(
-                                                "no desc",
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.w300,
-                                                    fontSize: 12),
-                                              )
-                                            : Text(
-                                                mydesclist[index],
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.w300,
-                                                    fontSize: 12),
-                                              )
-
-                                        //Text(data[index].id),
-                                        ),
+                                      width: sw,
+                                      child: (mydesclist[index] == "")
+                                          ? Text(
+                                              "no desc",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.w300,
+                                                  fontSize: 12),
+                                            )
+                                          : Text(
+                                              mydesclist[index],
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.w300,
+                                                  fontSize: 12),
+                                            ),
+                                    ),
                                   ]),
                             ),
                           );
@@ -169,8 +178,11 @@ class _SearchPageState extends State<SearchPage> {
           Container(),
           Container(
             decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey, width: 1),
-                borderRadius: BorderRadius.all(Radius.circular(30))),
+              border: Border.all(color: Colors.grey, width: 1),
+              borderRadius: BorderRadius.all(
+                Radius.circular(30),
+              ),
+            ),
             margin: EdgeInsets.fromLTRB(0, 10, 0, 0),
             child: Column(children: <Widget>[
               Padding(
@@ -181,19 +193,25 @@ class _SearchPageState extends State<SearchPage> {
                       height: 30,
                       padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
                       decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(40),
-                          border: Border.all(color: Colors.white, width: 3)),
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(40),
+                        border: Border.all(color: Colors.white, width: 3),
+                      ),
                       child: Center(
                         child: TextFormField(
                           controller: searchController,
                           textInputAction: TextInputAction.next,
                           autocorrect: false,
                           decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: "Text",
-                              hintStyle: TextStyle(color: Color(0xff8D8D8D))),
-                          style: TextStyle(color: Color(0xff8D8D8D)),
+                            border: InputBorder.none,
+                            hintText: "Text",
+                            hintStyle: TextStyle(
+                              color: Color(0xff8D8D8D),
+                            ),
+                          ),
+                          style: TextStyle(
+                            color: Color(0xff8D8D8D),
+                          ),
                         ),
                       ),
                     ),

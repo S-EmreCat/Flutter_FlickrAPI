@@ -12,6 +12,7 @@ class AppService {
       "https://www.flickr.com/services/rest/?method=flickr.photos.getInfo&api_key=749dfa7bd06ca56054f0debbac7e99c0&photo_id=";
   String getSizesURL =
       "https://www.flickr.com/services/rest/?method=flickr.photos.getSizes&api_key=749dfa7bd06ca56054f0debbac7e99c0&photo_id=";
+
   Future<String> httpGet(String _url) async {
     HttpClient client = new HttpClient();
     HttpClientRequest request = await client.getUrl(Uri.parse(_url));
@@ -29,6 +30,8 @@ class AppService {
     var result = SearchModel.fromJson(json.decode(response));
     if (data != null) {
       result = SearchModel.fromJson(data);
+    } else {
+      throw "Can't get";
     }
     return result;
   }
@@ -40,18 +43,34 @@ class AppService {
     var result = GetInfoModel.fromJson(json.decode(response));
     if (data != null) {
       result = GetInfoModel.fromJson(data);
+    } else {
+      throw "Can't get";
     }
     return result;
   }
 
-  Future<GetSizesModel> getSizesResults(String getSizesString) async {
+  Future<GetSizesModel> getSizesResults(String getsizeString) async {
     var response = await httpGet(
-        getinfoURL + getSizesString + "&format=json&nojsoncallback=1");
+        getSizesURL + getsizeString + "&format=json&nojsoncallback=1");
     var data = json.decode(response);
     var result = GetSizesModel.fromJson(json.decode(response));
     if (data != null) {
       result = GetSizesModel.fromJson(data);
+    } else {
+      throw "Can't get";
     }
     return result;
   }
+
+  // Future getsize() async {
+  //   final url = Uri.parse(
+  //       "https://www.flickr.com/services/rest/?method=flickr.photos.getSizes&api_key=749dfa7bd06ca56054f0debbac7e99c0&photo_id=51336994303&format=json&nojsoncallback=1");
+  //   http.Response response =
+  //       await http.get(url, headers: {'Accept': 'application/json'});
+  //   if (response.statusCode == 200) {
+  //     var jsonResponse =
+  //         convert.jsonDecode(response.body) as Map<String, dynamic>;
+  //     return jsonResponse;
+  //   }
+  // }
 }

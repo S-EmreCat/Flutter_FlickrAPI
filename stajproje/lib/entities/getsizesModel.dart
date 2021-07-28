@@ -32,7 +32,8 @@ class Sizes {
     canprint = json['canprint'];
     candownload = json['candownload'];
     if (json['size'] != null) {
-      List<Size> size = <Size>[];
+      // ignore: deprecated_member_use
+      size = new List<Size>();
       json['size'].forEach((v) {
         size.add(new Size.fromJson(v));
       });

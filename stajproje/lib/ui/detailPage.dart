@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:stajproje/entities/getsizesModel.dart';
 import 'package:stajproje/service/service.dart';
 
+import 'package:stajproje/ui/searchPage.dart';
+
 class DetailPage extends StatefulWidget {
   final String title;
   final String photoid;
@@ -15,17 +17,28 @@ AppService appService = AppService();
 
 // TODO: getSizes Apiden resim çekilecek.
 class _DetailPageState extends State<DetailPage> {
+  GetSizesModel getsizeResult = new GetSizesModel();
+  Future getsize(String searchKey) async {
+    service.getSizesResults(searchKey).then((value) {
+      getsizeResult = value;
+      setState(() {});
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    getsize(widget.photoid);
   }
 
   @override
   Widget build(BuildContext context) {
     double sh = MediaQuery.of(context).size.height - 50;
     double sw = MediaQuery.of(context).size.width;
-    print(MediaQuery.of(context).size.width);
-    debugPrint(MediaQuery.of(context).size.height.toString());
+    debugPrint("w: " + MediaQuery.of(context).size.width.toString());
+    debugPrint("h: " + MediaQuery.of(context).size.height.toString());
+    debugPrint("photo h: " + ((sh / 10) * 4).toString());
+
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 50,
@@ -36,20 +49,30 @@ class _DetailPageState extends State<DetailPage> {
           child: Column(
             children: [
               Container(
-                  decoration: BoxDecoration(
-                    color: Colors.blue,
-                  ),
-                  height: sh / 12,
-                  child: Center(child: Text("${widget.title}"))),
-              Container(
-                decoration: BoxDecoration(),
-                height: (sh / 10) * 4,
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                ),
+                height: sh / 12,
                 child: Center(
-                    child: Image.network(
-                  "https://live.staticflickr.com/65535/51336994303_e2163d33e7_s.jpg",
-                )),
-                padding: EdgeInsets.only(bottom: 2, top: 2),
+                  child: Text("${widget.title}"),
+                ),
               ),
+              if (getsizeResult.sizes != null)
+                Container(
+                  decoration: BoxDecoration(),
+                  height: (sh / 10) * 4,
+                  child: Center(
+                    child: Image.network(getsizeResult.sizes.size[4].source),
+                  ),
+                ),
+              if (getsizeResult.sizes == null)
+                Container(
+                  decoration: BoxDecoration(),
+                  height: (sh / 10) * 4,
+                  child: Center(
+                    child: Text("yükleniyor"),
+                  ),
+                ),
               Container(
                 decoration: BoxDecoration(
                   color: Colors.red,
