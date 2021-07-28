@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:stajproje/ui/deneme.dart';
 import 'package:stajproje/ui/searchPage.dart';
 
 Future<void> main() async {

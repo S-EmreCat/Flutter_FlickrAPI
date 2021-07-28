@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:stajproje/entities/getsizesModel.dart';
 import 'package:stajproje/service/service.dart';
 
+// import 'package:google_maps_flutter/google_maps_flutter.dart';
+
 import 'package:stajproje/ui/searchPage.dart';
 
 class DetailPage extends StatefulWidget {

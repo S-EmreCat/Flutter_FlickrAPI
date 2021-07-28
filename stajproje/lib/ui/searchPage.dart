@@ -59,7 +59,7 @@ class _SearchPageState extends State<SearchPage> {
             Expanded(
               child: searchResult.photos == null
                   ? Container(
-                      child: Center(child: Text("No Result")),
+                      child: Center(child: Text("")),
                     )
                   : ListView.builder(
                       scrollDirection: Axis.vertical,
