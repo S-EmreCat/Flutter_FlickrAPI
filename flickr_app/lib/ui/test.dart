@@ -16,12 +16,7 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
       appBar: AppBar(
         title: Text("Google Map"),
       ),
-      body: GoogleMap(
-        initialCameraPosition: CameraPosition(
-          target: LatLng(48.776803, 9.187435),
-          zoom: 10,
-        ),
-      ),
+      body: Text("test page"),
     );
   }
 }
