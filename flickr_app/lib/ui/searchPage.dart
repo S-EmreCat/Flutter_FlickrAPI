@@ -25,6 +25,7 @@ class _SearchPageState extends State<SearchPage> {
   // FIXME: 20 saniye gecikmeli yükleniyor veriler
   search(String searchKey) async {
     searchResult = await service.getSearchResults(searchKey);
+
     // getinfofnc();
     for (var i in searchResult.photos.photo) {
       getinfoResult = await service.getInfoResults(i.id);
@@ -57,9 +58,12 @@ class _SearchPageState extends State<SearchPage> {
         child: Column(
           children: [
             Expanded(
+              // TODO: Future.builder ile yapmayı dene sayfayı
               child: searchResult.photos == null
                   ? Container(
-                      child: Center(child: Text("")),
+                      child: Center(
+                        child: Text(""),
+                      ),
                     )
                   : ListView.builder(
                       scrollDirection: Axis.vertical,
@@ -72,7 +76,6 @@ class _SearchPageState extends State<SearchPage> {
                         if (data.length > 0) {
                           return InkWell(
                             onTap: () {
-                              // TODO: list tile ile icon + title yazdırılabiliyor oraya bak icon
                               debugPrint(data[index].id);
                               Navigator.of(context).push(
                                 MaterialPageRoute(
@@ -155,7 +158,7 @@ class _SearchPageState extends State<SearchPage> {
                     constraints: BoxConstraints(minHeight: 50),
                     alignment: Alignment.center,
                     child: Text(
-                      "Pop-up",
+                      "Search Bar",
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Colors.black),
                     ),
@@ -234,7 +237,7 @@ class _SearchPageState extends State<SearchPage> {
                   constraints: BoxConstraints(minHeight: 50),
                   alignment: Alignment.center,
                   child: Text(
-                    "Arama",
+                    "Search",
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.black),
                   ),

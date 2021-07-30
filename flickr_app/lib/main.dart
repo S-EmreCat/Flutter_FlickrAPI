@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:stajproje/ui/searchPage.dart';
+// ignore: unused_import
+import 'package:stajproje/ui/test.dart';
 
 Future<void> main() async {
   runApp(MaterialApp(

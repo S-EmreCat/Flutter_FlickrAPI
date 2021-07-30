@@ -61,16 +61,4 @@ class AppService {
     }
     return result;
   }
-
-  // Future getsize() async {
-  //   final url = Uri.parse(
-  //       "https://www.flickr.com/services/rest/?method=flickr.photos.getSizes&api_key=749dfa7bd06ca56054f0debbac7e99c0&photo_id=51336994303&format=json&nojsoncallback=1");
-  //   http.Response response =
-  //       await http.get(url, headers: {'Accept': 'application/json'});
-  //   if (response.statusCode == 200) {
-  //     var jsonResponse =
-  //         convert.jsonDecode(response.body) as Map<String, dynamic>;
-  //     return jsonResponse;
-  //   }
-  // }
 }
