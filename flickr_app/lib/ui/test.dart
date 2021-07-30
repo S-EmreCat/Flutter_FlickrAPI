@@ -3,73 +3,65 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:stajproje/entities/getinfoModel.dart';
 import 'package:stajproje/entities/getsizesModel.dart';
+import 'package:stajproje/entities/searchModel.dart';
 import 'package:stajproje/service/service.dart';
 
-class GoogleMapScreen extends StatefulWidget {
-  GoogleMapScreen({Key key}) : super(key: key);
+class TestScreen extends StatefulWidget {
+  TestScreen({Key key}) : super(key: key);
 
   @override
-  _GoogleMapScreenState createState() => _GoogleMapScreenState();
+  _TestScreenState createState() => _TestScreenState();
 }
 
 AppService appService = AppService();
 
-class _GoogleMapScreenState extends State<GoogleMapScreen> {
+class _TestScreenState extends State<TestScreen> {
   GetSizesModel getsizeResult = new GetSizesModel();
   GetInfoModel getinfoResult = new GetInfoModel();
-  getinfo() async {
-    getinfoResult = await appService.getInfoResults("51343874272");
-    return getinfoResult;
-  }
+  SearchModel searchResult = new SearchModel();
+  // GetSizesModel getsizeResult = new GetSizesModel();
+  List<String> myownameslist = [];
+  List<String> mydesclist = [];
+  List<String> myimagelist = [];
 
-  getsize() async {
-    getsizeResult = await appService.getSizesResults("51345544525");
-    return getsizeResult;
+  // TODO: Future olmadan çalıştırmayı dene
+  // FIXME: 20 saniye gecikmeli yükleniyor veriler
+  search(String searchKey) async {
+    searchResult = await appService.getSearchResults(searchKey);
+    // getinfofnc();
+    for (var i in searchResult.photos.photo) {
+      getinfoResult = await appService.getInfoResults(i.id);
+      myownameslist.add(getinfoResult.photo.owner.username);
+      mydesclist.add(getinfoResult.photo.description.sContent);
+      myimagelist.add(getsizeResult.sizes.size[0].source);
+    }
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Google Map"),
-      ),
-      body: Column(
-        children: [
-          Container(
-            child: FutureBuilder(
-              future: getinfo(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData &&
-                    snapshot.connectionState != ConnectionState) {
-                  return Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasData) {
-                  return Text(getinfoResult.photo.description.sContent);
-                } else if (snapshot.hasError) {
-                  return Text("error");
-                }
-                return CircularProgressIndicator();
-              },
-            ),
+        appBar: AppBar(
+          title: Text("Google Map"),
+        ),
+        body: Container(
+          padding: EdgeInsets.all(5),
+          width: double.infinity,
+          child: ListView.builder(
+            scrollDirection: Axis.vertical,
+            shrinkWrap: true,
+            itemCount: 25,
+            itemBuilder: (context, index) {
+              return ListTile(
+                title: Container(
+                    height: 100,
+                    child: IconTheme(
+                        data: IconThemeData(color: Color(0xFF3A5A98)),
+                        child: Image.network(
+                            "https://live.staticflickr.com/65535/51344867566_469afae4bd_s.jpg"))),
+              );
+            },
           ),
-          Container(
-            child: FutureBuilder(
-              future: getsize(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData &&
-                    snapshot.connectionState != ConnectionState) {
-                  return Center(child: CircularProgressIndicator());
-                }
-                if (snapshot.hasData) {
-                  return Text(getsizeResult.sizes.size[4].source.toString());
-                } else if (snapshot.hasError) {
-                  return Text("error");
-                }
-                return CircularProgressIndicator();
-              },
-            ),
-          ),
-        ],
-      ),
-    );
+        ));
   }
 }

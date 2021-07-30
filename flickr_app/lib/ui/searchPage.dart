@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stajproje/entities/getinfoModel.dart';
+import 'package:stajproje/entities/getsizesModel.dart';
 import 'package:stajproje/entities/searchModel.dart';
 import 'package:stajproje/service/service.dart';
 import 'package:stajproje/ui/detailPage.dart';
@@ -18,32 +19,39 @@ TextEditingController searchController = new TextEditingController();
 class _SearchPageState extends State<SearchPage> {
   SearchModel searchResult = new SearchModel();
   GetInfoModel getinfoResult = new GetInfoModel();
+  GetSizesModel getsizeResult = new GetSizesModel();
   List<String> myownameslist = [];
   List<String> mydesclist = [];
+  List<String> myimagelist = [];
 
   // TODO: Future olmadan çalıştırmayı dene
   // FIXME: 20 saniye gecikmeli yükleniyor veriler
   search(String searchKey) async {
     searchResult = await service.getSearchResults(searchKey);
-
+    mydesclist.clear();
+    myimagelist.clear();
+    myownameslist.clear();
     // getinfofnc();
     for (var i in searchResult.photos.photo) {
       getinfoResult = await service.getInfoResults(i.id);
+      getsizeResult = await service.getSizesResults(i.id);
       myownameslist.add(getinfoResult.photo.owner.username);
       mydesclist.add(getinfoResult.photo.description.sContent);
+      myimagelist.add(getsizeResult.sizes.size[0].source);
+      print("for loop" + [i].toString());
     }
     setState(() {});
   }
 
-  getinfofnc(photoid) async {
-    getinfoResult = await service.getInfoResults(photoid);
-    setState(() {});
-  }
+  // getinfofnc(photoid) async {
+  //   getinfoResult = await service.getInfoResults(photoid);
+  //   setState(() {});
+  // }
 
   @override
   Widget build(BuildContext context) {
     double sh = MediaQuery.of(context).size.height - 50;
-    double sw = MediaQuery.of(context).size.width;
+    // double sw = MediaQuery.of(context).size.width;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -96,39 +104,63 @@ class _SearchPageState extends State<SearchPage> {
                               ),
                               margin: EdgeInsets.fromLTRB(10, 5, 10, 0),
                               padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
-                              child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      padding: EdgeInsets.fromLTRB(0, 3, 0, 3),
-                                      child: Text(
-                                        data[index].title,
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w600),
+                              // TODO: Icon koyulacak yer
+                              child: Container(
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: Row(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            2, 5, 7, 5),
+                                        child: Image.network(
+                                          myimagelist[index],
+                                          filterQuality: FilterQuality.high,
+                                        ),
                                       ),
-                                    ),
-                                    Container(
-                                      padding: EdgeInsets.fromLTRB(0, 3, 0, 3),
-                                      child: Text(myownameslist[index]),
-                                    ),
-                                    Container(
-                                      width: sw,
-                                      child: (mydesclist[index] == "")
-                                          ? Text(
-                                              "no desc",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.w300,
-                                                  fontSize: 12),
-                                            )
-                                          : Text(
-                                              mydesclist[index],
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.w300,
-                                                  fontSize: 12),
+                                      Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          children: [
+                                            Container(
+                                              padding: EdgeInsets.fromLTRB(
+                                                  0, 3, 0, 3),
+                                              child: Text(
+                                                data[index].title,
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.w600),
+                                              ),
                                             ),
-                                    ),
-                                  ]),
+                                            Container(
+                                              padding: EdgeInsets.fromLTRB(
+                                                  0, 3, 0, 3),
+                                              child: Text(myownameslist[index]),
+                                            ),
+                                            Container(
+                                              child: (mydesclist[index] == "")
+                                                  ? Text(
+                                                      "no desc",
+                                                      style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.w300,
+                                                          fontSize: 12),
+                                                    )
+                                                  : Text(
+                                                      mydesclist[index],
+                                                      style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.w300,
+                                                          fontSize: 12),
+                                                    ),
+                                            ),
+                                          ]),
+                                    ],
+                                  ),
+                                ),
+                              ),
                             ),
                           );
                         } else
@@ -194,7 +226,7 @@ class _SearchPageState extends State<SearchPage> {
                   children: <Widget>[
                     Container(
                       height: 30,
-                      padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
+                      padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(40),
