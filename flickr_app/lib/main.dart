@@ -8,6 +8,6 @@ Future<void> main() async {
   runApp(MaterialApp(
     theme: ThemeData(primarySwatch: Colors.indigo),
     debugShowCheckedModeBanner: false,
-    home: SearchPage(),
+    home: TestScreen(),
   ));
 }

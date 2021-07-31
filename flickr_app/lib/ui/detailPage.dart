@@ -36,13 +36,12 @@ class _DetailPageState extends State<DetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    double sh = MediaQuery.of(context).size.height - 50;
-    double sw = MediaQuery.of(context).size.width;
+    double sh = MediaQuery.of(context).size.height - 50 - 50;
+    //double sw = MediaQuery.of(context).size.width;
     debugPrint("pid: " + widget.photoid);
     debugPrint("w: " + MediaQuery.of(context).size.width.toString());
     debugPrint("h: " + MediaQuery.of(context).size.height.toString());
     debugPrint("photo h: " + ((sh / 10) * 4).toString());
-
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 50,
@@ -56,14 +55,15 @@ class _DetailPageState extends State<DetailPage> {
                 decoration: BoxDecoration(
                   color: Colors.blue,
                 ),
-                height: sh / 12,
+                height: 50,
                 child: Center(
                   child: Text("${widget.title}"),
                 ),
               ),
               Container(
-                decoration: BoxDecoration(),
-                height: (sh / 10) * 4,
+                // TODO: border ın altına çizgi eklenip harita ile resim ayrılacak
+                decoration: BoxDecoration(border: Border(bottom: BorderSide())),
+                height: (sh / 10) * 4.75,
                 child: FutureBuilder(
                   future: getsize(),
                   builder: (context, snapshot) {
@@ -85,80 +85,79 @@ class _DetailPageState extends State<DetailPage> {
                 ),
               ),
               Container(
-                decoration: BoxDecoration(
-                  color: Colors.yellow[600],
-                ),
-                height: (sh / 10) * 4,
+                decoration: BoxDecoration(),
+                height: (sh / 10) * 4.75,
                 child: Center(
                   child: Padding(
-                      padding: const EdgeInsets.all(2.0),
-                      child: FutureBuilder(
-                        future: getlocation(),
-                        builder: (context, snapshot) {
-                          if (!snapshot.hasData &&
-                              snapshot.connectionState != ConnectionState) {
-                            return Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          }
-                          if (snapshot.hasData) {
-                            return GoogleMap(
-                              mapType: MapType.satellite,
-                              initialCameraPosition: CameraPosition(
-                                target: LatLng(
-                                  double.parse(
-                                      getinfoResult.photo.location.latitude),
-                                  double.parse(
-                                      getinfoResult.photo.location.longitude),
-                                ),
-                                zoom: 14,
+                    padding: const EdgeInsets.fromLTRB(2, 2, 2, 0),
+                    child: FutureBuilder(
+                      future: getlocation(),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData &&
+                            snapshot.connectionState != ConnectionState) {
+                          return Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+                        if (snapshot.hasData) {
+                          return GoogleMap(
+                            mapType: MapType.satellite,
+                            initialCameraPosition: CameraPosition(
+                              target: LatLng(
+                                double.parse(
+                                    getinfoResult.photo.location.latitude),
+                                double.parse(
+                                    getinfoResult.photo.location.longitude),
                               ),
-                              markers: _cretaeMarker(),
-                            );
-                          } else if (snapshot.hasError) {
-                            return Text("error");
-                          }
-                          return CircularProgressIndicator();
-                        },
-                      )),
-                ),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.green,
-                ),
-                height: sh / 14,
-                width: sw,
-                child: ElevatedButton(
-                  style:
-                      ElevatedButton.styleFrom(primary: Colors.blueGrey[100]),
-                  onPressed: () {
-                    debugPrint("clicked");
-                    Navigator.pop(context);
-                  },
-                  child: Ink(
-                    child: Container(
-                      width: sw,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Color(0xffDBDBDB),
-                            Color(0xffeaeaea),
-                          ],
-                        ),
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        "Back",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.black),
-                      ),
+                              zoom: 14,
+                            ),
+                            markers: _cretaeMarker(),
+                          );
+                        } else if (snapshot.hasError) {
+                          return Text("error");
+                        }
+                        return CircularProgressIndicator();
+                      },
                     ),
                   ),
                 ),
               ),
+              // TODO: KALDIR
+              // Container(
+              //   decoration: BoxDecoration(),
+              //   height: sh / 14,
+              //   width: sw,
+              //   child: ElevatedButton(
+              //     style:
+              //         ElevatedButton.styleFrom(primary: Colors.blueGrey[100]),
+              //     onPressed: () {
+              //       debugPrint("clicked");
+              //       Navigator.pop(context);
+              //     },
+              //     child: Ink(
+              //       child: Container(
+              //         width: sw,
+              //         decoration: BoxDecoration(
+              //           gradient: LinearGradient(
+              //             begin: Alignment.topLeft,
+              //             end: Alignment.bottomRight,
+              //             colors: [
+              //               Color(0xffDBDBDB),
+              //               Color(0xffeaeaea),
+              //             ],
+              //           ),
+              //         ),
+              //         alignment: Alignment.center,
+              //
+              //         child: Text(
+              //           "Back",
+              //           textAlign: TextAlign.center,
+              //           style: TextStyle(color: Colors.black),
+              //         ),
+              //       ),
+              //     ),
+              //   ),
+              // ),
             ],
           ),
         ),
