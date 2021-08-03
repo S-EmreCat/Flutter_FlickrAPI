@@ -54,19 +54,14 @@ class Sizes {
 
 class Size {
   String label;
-  int width;
-  int height;
   String source;
   String url;
   String media;
 
-  Size(
-      {this.label, this.width, this.height, this.source, this.url, this.media});
+  Size({this.label, this.source, this.url, this.media});
 
   Size.fromJson(Map<String, dynamic> json) {
     label = json['label'];
-    width = json['width'];
-    height = json['height'];
     source = json['source'];
     url = json['url'];
     media = json['media'];
@@ -75,8 +70,6 @@ class Size {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['label'] = this.label;
-    data['width'] = this.width;
-    data['height'] = this.height;
     data['source'] = this.source;
     data['url'] = this.url;
     data['media'] = this.media;

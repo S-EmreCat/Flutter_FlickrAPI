@@ -22,16 +22,27 @@ class AppService {
     return await response.transform(utf8.decoder).join();
   }
 
-  Future<SearchModel> getSearchResults(String searchString) async {
+  Future<SearchModel> getSearchResults(String searchString, int page) async {
     var response = await httpGet(searchURL +
         searchString +
-        "&has_geo=1&per_page=25&format=json&nojsoncallback=1");
+        "&has_geo=1&per_page=6&page=" +
+        page.toString() +
+        "&format=json&nojsoncallback=1");
     var data = json.decode(response);
+
     var result = SearchModel.fromJson(json.decode(response));
     if (data != null) {
       result = SearchModel.fromJson(data);
     } else {
       throw "Can't get";
+    }
+    for (var i in result.photos.photo) {
+      var aa = await getInfoResults(i.id);
+      i.desc = aa.photo.description.sContent;
+      i.owner = aa.photo.owner.username;
+
+      var bb = await getSizesResults(i.id);
+      i.url = bb.sizes.size[0].source;
     }
     return result;
   }

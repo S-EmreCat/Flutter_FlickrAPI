@@ -25,7 +25,7 @@ class _DetailPageState extends State<DetailPage> {
   GetInfoModel getinfoResult = new GetInfoModel();
 
   getsize() async {
-    getsizeResult = await service.getSizesResults(widget.photoid);
+    getsizeResult = await appService.getSizesResults(widget.photoid);
     return getsizeResult;
   }
 
@@ -62,8 +62,9 @@ class _DetailPageState extends State<DetailPage> {
               ),
               Container(
                 // TODO: border ın altına çizgi eklenip harita ile resim ayrılacak
-                decoration: BoxDecoration(border: Border(bottom: BorderSide())),
-                height: (sh / 10) * 4.75,
+                // Divider(color: Colors.black, thickness:2)
+                // decoration: BoxDecoration(border: Border(bottom: BorderSide())),
+                height: (sh / 10) * 4.5,
                 child: FutureBuilder(
                   future: getsize(),
                   builder: (context, snapshot) {
@@ -84,9 +85,14 @@ class _DetailPageState extends State<DetailPage> {
                   },
                 ),
               ),
+              Divider(
+                height: 10,
+                color: Colors.black,
+                thickness: 2,
+              ),
               Container(
                 decoration: BoxDecoration(),
-                height: (sh / 10) * 4.75,
+                height: (sh / 10) * 4.5,
                 child: Center(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(2, 2, 2, 0),
@@ -122,42 +128,6 @@ class _DetailPageState extends State<DetailPage> {
                   ),
                 ),
               ),
-              // TODO: KALDIR
-              // Container(
-              //   decoration: BoxDecoration(),
-              //   height: sh / 14,
-              //   width: sw,
-              //   child: ElevatedButton(
-              //     style:
-              //         ElevatedButton.styleFrom(primary: Colors.blueGrey[100]),
-              //     onPressed: () {
-              //       debugPrint("clicked");
-              //       Navigator.pop(context);
-              //     },
-              //     child: Ink(
-              //       child: Container(
-              //         width: sw,
-              //         decoration: BoxDecoration(
-              //           gradient: LinearGradient(
-              //             begin: Alignment.topLeft,
-              //             end: Alignment.bottomRight,
-              //             colors: [
-              //               Color(0xffDBDBDB),
-              //               Color(0xffeaeaea),
-              //             ],
-              //           ),
-              //         ),
-              //         alignment: Alignment.center,
-              //
-              //         child: Text(
-              //           "Back",
-              //           textAlign: TextAlign.center,
-              //           style: TextStyle(color: Colors.black),
-              //         ),
-              //       ),
-              //     ),
-              //   ),
-              // ),
             ],
           ),
         ),
@@ -166,17 +136,31 @@ class _DetailPageState extends State<DetailPage> {
   }
 
   Set<Marker> _cretaeMarker() {
-    return <Marker>[
-      Marker(
-        infoWindow:
-            InfoWindow(title: getinfoResult.photo.location.locality.sContent),
-        markerId: MarkerId("asdasd"),
-        position: LatLng(
-          double.parse(getinfoResult.photo.location.latitude),
-          double.parse(getinfoResult.photo.location.longitude),
+    if (getinfoResult.photo.location.locality == null)
+      return <Marker>[
+        Marker(
+          infoWindow:
+              InfoWindow(title: getinfoResult.photo.location.country.sContent),
+          markerId: MarkerId("1"),
+          position: LatLng(
+            double.parse(getinfoResult.photo.location.latitude),
+            double.parse(getinfoResult.photo.location.longitude),
+          ),
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueCyan),
         ),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueCyan),
-      ),
-    ].toSet();
+      ].toSet();
+    else
+      return <Marker>[
+        Marker(
+          infoWindow:
+              InfoWindow(title: getinfoResult.photo.location.locality.sContent),
+          markerId: MarkerId("2"),
+          position: LatLng(
+            double.parse(getinfoResult.photo.location.latitude),
+            double.parse(getinfoResult.photo.location.longitude),
+          ),
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueCyan),
+        ),
+      ].toSet();
   }
 }

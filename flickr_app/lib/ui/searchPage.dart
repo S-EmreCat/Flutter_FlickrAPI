@@ -20,33 +20,53 @@ class _SearchPageState extends State<SearchPage> {
   SearchModel searchResult = new SearchModel();
   GetInfoModel getinfoResult = new GetInfoModel();
   GetSizesModel getsizeResult = new GetSizesModel();
-  List<String> myownameslist = [];
-  List<String> mydesclist = [];
-  List<String> myimagelist = [];
+  ScrollController _scrollController = new ScrollController();
+  int page = 1;
+  String lastSearchKey = "";
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(() {
+      // print("pixels: " + _scrollController.position.pixels.toString());
+      // print("extent" + _scrollController.position.maxScrollExtent.toString());
+      if (_scrollController.position.pixels ==
+          _scrollController.position.maxScrollExtent) {
+        search(lastSearchKey);
+      }
+    });
+  }
+
+  getsize(pid) async {
+    getsizeResult = await service.getSizesResults(pid);
+    return getsizeResult;
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   // TODO: Future olmadan çalıştırmayı dene
   // FIXME: 20 saniye gecikmeli yükleniyor veriler
+// search(lastSearchKey,page);
   search(String searchKey) async {
-    searchResult = await service.getSearchResults(searchKey);
-    mydesclist.clear();
-    myimagelist.clear();
-    myownameslist.clear();
-    // getinfofnc();
-    for (var i in searchResult.photos.photo) {
-      getinfoResult = await service.getInfoResults(i.id);
-      getsizeResult = await service.getSizesResults(i.id);
-      myownameslist.add(getinfoResult.photo.owner.username);
-      mydesclist.add(getinfoResult.photo.description.sContent);
-      myimagelist.add(getsizeResult.sizes.size[0].source);
-      print("for loop" + [i].toString());
+    if (searchKey != lastSearchKey) {
+      page = 1;
+      lastSearchKey = searchKey;
+      searchResult = await service.getSearchResults(searchKey, page);
+    } else {
+      if (page < searchResult.photos.pages) {
+        page = page + 1;
+        var aa = await service.getSearchResults(searchKey, page);
+        for (var i in aa.photos.photo) {
+          searchResult.photos.photo.add(i);
+        }
+      }
     }
+
     setState(() {});
   }
-
-  // getinfofnc(photoid) async {
-  //   getinfoResult = await service.getInfoResults(photoid);
-  //   setState(() {});
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -76,9 +96,12 @@ class _SearchPageState extends State<SearchPage> {
                   : ListView.builder(
                       scrollDirection: Axis.vertical,
                       shrinkWrap: true,
+                      controller: _scrollController,
                       itemCount: searchResult.photos.photo.length,
                       itemBuilder: (BuildContext context, int index) {
+                        BouncingScrollPhysics();
                         var data = searchResult.photos.photo;
+
                         // getinfofnc(data[index].id);
                         // var infodata = getinfoResult.photo;
                         if (data.length > 0) {
@@ -110,65 +133,70 @@ class _SearchPageState extends State<SearchPage> {
                                   scrollDirection: Axis.horizontal,
                                   child: Row(
                                     children: [
-                                      Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                            2, 5, 7, 5),
-                                        child: Image.network(
-                                          myimagelist[index],
-                                          filterQuality: FilterQuality.high,
+                                      if (data[index].url != null)
+                                        Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              2, 5, 2, 5),
+                                          child: Image.network(
+                                            data[index].url,
+                                            filterQuality: FilterQuality.high,
+                                          ),
                                         ),
-                                      ),
                                       Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          children: [
-                                            Container(
-                                              padding: EdgeInsets.fromLTRB(
-                                                  0, 3, 0, 3),
-                                              child: Text(
-                                                data[index].title,
-                                                style: TextStyle(
-                                                    fontWeight:
-                                                        FontWeight.w600),
-                                              ),
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          Container(
+                                            padding:
+                                                EdgeInsets.fromLTRB(0, 3, 0, 3),
+                                            child: Text(
+                                              data[index].title,
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.w600),
                                             ),
-                                            Container(
-                                              padding: EdgeInsets.fromLTRB(
-                                                  0, 3, 0, 3),
-                                              child: Text(myownameslist[index]),
-                                            ),
-                                            Container(
-                                              child: (mydesclist[index] == "")
-                                                  ? Text(
-                                                      "no desc",
-                                                      style: TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.w300,
-                                                          fontSize: 12),
-                                                    )
-                                                  : Text(
-                                                      mydesclist[index],
-                                                      style: TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.w300,
-                                                          fontSize: 12),
-                                                    ),
-                                            ),
-                                          ]),
+                                          ),
+                                          Container(
+                                            padding:
+                                                EdgeInsets.fromLTRB(0, 3, 0, 3),
+                                            child: Text(data[index].owner),
+                                          ),
+                                          Container(
+                                            child: (data[index].desc == "")
+                                                ? Text(
+                                                    "no desc",
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.w300,
+                                                        fontSize: 12),
+                                                  )
+                                                : Text(
+                                                    data[index].desc,
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.w300,
+                                                        fontSize: 12),
+                                                  ),
+                                          ),
+                                        ],
+                                      ),
                                     ],
                                   ),
                                 ),
                               ),
                             ),
                           );
+                        } else if (searchResult.photos.photo.length == 0) {
+                          return Container(
+                            child: Text("sonuç bulunamadı"),
+                          );
                         } else
                           return Container(
-                            child: Text("Sonuç bulunamadı"),
+                            child: Text("null"),
                           );
                       },
-                      padding: EdgeInsets.all(1),
+                      // padding: EdgeInsets.all(1),
                     ),
             ),
             Container(
