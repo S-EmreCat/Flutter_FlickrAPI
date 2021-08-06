@@ -130,65 +130,79 @@ class _SearchPageState extends State<SearchPage> {
                               ),
                               margin: EdgeInsets.fromLTRB(10, 5, 10, 0),
                               padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
-                              // TODO: Icon koyulacak yer
                               child: Container(
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  child: Row(
-                                    children: [
-                                      if (data[index].url != null)
-                                        Padding(
-                                          padding: const EdgeInsets.fromLTRB(
-                                              2, 5, 2, 5),
-                                          child: Image.network(
-                                            data[index].url,
-                                            filterQuality: FilterQuality.high,
-                                          ),
+                                child: Row(
+                                  children: [
+                                    if (data[index].url != null)
+                                      Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            2, 5, 2, 5),
+                                        child: Image.network(
+                                          data[index].url,
+                                          filterQuality: FilterQuality.high,
                                         ),
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: [
-                                          Container(
-                                            padding:
-                                                EdgeInsets.fromLTRB(0, 3, 0, 3),
-                                            child: Text(
-                                              data[index].title,
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.w600),
-                                            ),
-                                          ),
-                                          Container(
-                                            padding:
-                                                EdgeInsets.fromLTRB(0, 3, 0, 3),
-                                            child: Text(data[index].owner),
-                                          ),
-                                          LimitedBox(
-                                            maxHeight: 200,
-                                            child: Container(
-                                              child: (data[index].desc == "")
-                                                  ? Text(
-                                                      "no desc",
-                                                      style: TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.w300,
-                                                          fontSize: 12),
-                                                    )
-                                                  : Text(
-                                                      data[index].desc,
-                                                      style: TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.w300,
-                                                          fontSize: 12),
-                                                    ),
-                                            ),
-                                          ),
-                                        ],
                                       ),
-                                    ],
-                                  ),
+                                    Padding(
+                                      padding:
+                                          const EdgeInsets.fromLTRB(3, 0, 1, 0),
+                                      child: Container(
+                                        width: 230,
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          children: [
+                                            Container(
+                                              padding: EdgeInsets.fromLTRB(
+                                                  0, 2, 0, 3),
+                                              child: Text(
+                                                data[index].title,
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.w600),
+                                              ),
+                                            ),
+                                            Container(
+                                              padding: EdgeInsets.fromLTRB(
+                                                  0, 0, 0, 2),
+                                              child: Text(
+                                                data[index].owner,
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.all(2.0),
+                                              child: Container(
+                                                child: (data[index].desc == "")
+                                                    ? Text(
+                                                        "no data",
+                                                        style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight.w300,
+                                                            fontSize: 12),
+                                                      )
+                                                    : Text(
+                                                        data[index].desc,
+                                                        maxLines: 2,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight.w300,
+                                                            fontSize: 12),
+                                                      ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
