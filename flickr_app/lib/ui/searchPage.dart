@@ -32,6 +32,7 @@ class _SearchPageState extends State<SearchPage> {
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
         search(lastSearchKey);
+        debugPrint("get data");
       }
     });
   }
@@ -97,6 +98,8 @@ class _SearchPageState extends State<SearchPage> {
                       scrollDirection: Axis.vertical,
                       shrinkWrap: true,
                       controller: _scrollController,
+                      physics: AlwaysScrollableScrollPhysics(),
+
                       itemCount: searchResult.photos.photo.length,
                       itemBuilder: (BuildContext context, int index) {
                         BouncingScrollPhysics();
@@ -121,7 +124,7 @@ class _SearchPageState extends State<SearchPage> {
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10),
                                 border: Border.all(
-                                  width: 1,
+                                  width: 3,
                                   color: Color(0xffEAEAEA),
                                 ),
                               ),
@@ -162,22 +165,25 @@ class _SearchPageState extends State<SearchPage> {
                                                 EdgeInsets.fromLTRB(0, 3, 0, 3),
                                             child: Text(data[index].owner),
                                           ),
-                                          Container(
-                                            child: (data[index].desc == "")
-                                                ? Text(
-                                                    "no desc",
-                                                    style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.w300,
-                                                        fontSize: 12),
-                                                  )
-                                                : Text(
-                                                    data[index].desc,
-                                                    style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.w300,
-                                                        fontSize: 12),
-                                                  ),
+                                          LimitedBox(
+                                            maxHeight: 200,
+                                            child: Container(
+                                              child: (data[index].desc == "")
+                                                  ? Text(
+                                                      "no desc",
+                                                      style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.w300,
+                                                          fontSize: 12),
+                                                    )
+                                                  : Text(
+                                                      data[index].desc,
+                                                      style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.w300,
+                                                          fontSize: 12),
+                                                    ),
+                                            ),
                                           ),
                                         ],
                                       ),

@@ -24,6 +24,8 @@ class _DetailPageState extends State<DetailPage> {
   GetSizesModel getsizeResult = new GetSizesModel();
   GetInfoModel getinfoResult = new GetInfoModel();
 
+  bool isLiked = false;
+
   getsize() async {
     getsizeResult = await appService.getSizesResults(widget.photoid);
     return getsizeResult;
@@ -56,8 +58,29 @@ class _DetailPageState extends State<DetailPage> {
                   color: Colors.blue,
                 ),
                 height: 50,
-                child: Center(
-                  child: Text("${widget.title}"),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text("${widget.title}"),
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(
+                          isLiked ? Icons.favorite : Icons.favorite_outline,
+                          color: isLiked ? Colors.red : Colors.white),
+                      iconSize: 25,
+                      onPressed: () {
+                        setState(() {
+                          // isLiked ise kayıt edilecek
+                          isLiked = !isLiked;
+                        });
+                      },
+                    ),
+                  ],
                 ),
               ),
               Container(
