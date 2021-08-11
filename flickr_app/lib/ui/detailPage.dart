@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:stajproje/entities/getinfoModel.dart';
+import 'package:stajproje/entities/getlocationModel.dart';
 import 'package:stajproje/entities/getsizesModel.dart';
 import 'package:stajproje/service/service.dart';
+import 'package:stajproje/entities/photoModel.dart' as photo;
+import 'package:stajproje/sqflitedb/photo_db_provider.dart';
 
 // import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -23,8 +26,28 @@ AppService appService = AppService();
 class _DetailPageState extends State<DetailPage> {
   GetSizesModel getsizeResult = new GetSizesModel();
   GetInfoModel getinfoResult = new GetInfoModel();
+  DatabaseHelper _databaseHelper = DatabaseHelper();
+  List<photo.Photo> allPhotos = <photo.Photo>[];
+  int clickedPhotoID;
 
-  bool isLiked = false;
+  bool myisLiked = false;
+
+  @override
+  void initState() {
+    super.initState();
+    getPhotos();
+  }
+
+  void getPhotos() async {
+    var photoFuture = _databaseHelper.getAllNotes();
+    await photoFuture.then((data) {
+      print("detail page data geliyo");
+      setState(() {
+        this.allPhotos = data;
+      });
+      return this.allPhotos;
+    });
+  }
 
   getsize() async {
     getsizeResult = await appService.getSizesResults(widget.photoid);
@@ -36,14 +59,40 @@ class _DetailPageState extends State<DetailPage> {
     return getinfoResult;
   }
 
+  Future myinsert(photo.Photo myphoto) async {
+    await _databaseHelper.insert(myphoto);
+  }
+
+  Future mydelete() async {
+    await _databaseHelper.deleteList(int.parse(getinfoResult.photo.id));
+  }
+
+  void deletePhoto() {
+    if (myisLiked == false) {
+      mydelete();
+    }
+  }
+
+  void savePhoto() {
+    if (myisLiked == true) {
+      myinsert(
+        photo.Photo(
+            desc: getinfoResult.photo.description.sContent,
+            title: getinfoResult.photo.title.sContent,
+            owner: getinfoResult.photo.owner.username,
+            url: getsizeResult.sizes.size[0].source,
+            id: getinfoResult.photo.id,
+            isLiked: myisLiked),
+      );
+      print("kaydedildi");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     double sh = MediaQuery.of(context).size.height - 50 - 50;
     //double sw = MediaQuery.of(context).size.width;
     debugPrint("pid: " + widget.photoid);
-    debugPrint("w: " + MediaQuery.of(context).size.width.toString());
-    debugPrint("h: " + MediaQuery.of(context).size.height.toString());
-    debugPrint("photo h: " + ((sh / 10) * 4).toString());
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 50,
@@ -70,14 +119,16 @@ class _DetailPageState extends State<DetailPage> {
                     ),
                     IconButton(
                       icon: Icon(
-                          isLiked ? Icons.favorite : Icons.favorite_outline,
-                          color: isLiked ? Colors.red : Colors.white),
+                          myisLiked ? Icons.favorite : Icons.favorite_outline,
+                          color: myisLiked ? Colors.red : Colors.white),
                       iconSize: 25,
                       onPressed: () {
-                        setState(() {
-                          // isLiked ise kayıt edilecek
-                          isLiked = !isLiked;
-                        });
+                        setState(
+                          () {
+                            myisLiked = !myisLiked;
+                            myisLiked ? savePhoto() : deletePhoto();
+                          },
+                        );
                       },
                     ),
                   ],

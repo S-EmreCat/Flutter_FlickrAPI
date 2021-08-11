@@ -4,8 +4,9 @@ class Photo {
   String title;
   String desc;
   String url;
+  bool isLiked;
 
-  Photo({this.id, this.owner, this.title, this.desc, this.url});
+  Photo({this.id, this.owner, this.title, this.desc, this.url, this.isLiked});
 
   Photo.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -13,6 +14,7 @@ class Photo {
     title = json['title'];
     desc = json['desc'];
     url = json['url'];
+    isLiked = json["isLiked"] is int;
   }
 
   Map<String, dynamic> toJson() {
@@ -22,6 +24,8 @@ class Photo {
     data['title'] = this.title;
     data['desc'] = this.desc;
     data['url'] = this.url;
+    data["isLiked"] = this.isLiked;
+
     return data;
   }
 }
