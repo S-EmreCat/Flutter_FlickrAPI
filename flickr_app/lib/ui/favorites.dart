@@ -16,10 +16,8 @@ class _FavoritesState extends State<Favorites> {
   int clickedPhotoID;
   ScrollController _scrollController = new ScrollController();
 
-  List<String> listem = ["sdgsd", "sdgsd", "werwe"];
-
-  Future<void> deneme() async {
-    return Future.delayed(Duration(seconds: 1), () => listem);
+  Future<void> futurefnx() async {
+    return Future.delayed(Duration(seconds: 1), () => 1);
   }
 
   void getPhotos() async {
@@ -36,7 +34,6 @@ class _FavoritesState extends State<Favorites> {
   @override
   void initState() {
     super.initState();
-    print("uzuluk:" + allPhotos.length.toString());
 
     getPhotos();
     _scrollController.addListener(() {
@@ -44,8 +41,7 @@ class _FavoritesState extends State<Favorites> {
       // print("extent" + _scrollController.position.maxScrollExtent.toString());
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
-        getPhotos();
-        debugPrint("get data");
+        debugPrint("scroll data");
       }
     });
   }
@@ -59,7 +55,7 @@ class _FavoritesState extends State<Favorites> {
         ),
         body: Container(
           child: FutureBuilder(
-            future: deneme(),
+            future: futurefnx(),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 if (allPhotos.length == 0) {
@@ -69,17 +65,14 @@ class _FavoritesState extends State<Favorites> {
                 } else
                   return ListView.builder(
                     scrollDirection: Axis.vertical,
-                    shrinkWrap: true,
+                    shrinkWrap: false,
                     controller: _scrollController,
                     physics: AlwaysScrollableScrollPhysics(),
 
                     itemCount: allPhotos.length,
                     itemBuilder: (BuildContext context, int index) {
-                      BouncingScrollPhysics();
                       var data = allPhotos;
 
-                      // getinfofnc(data[index].id);
-                      // var infodata = getinfoResult.photo;
                       if (data.length > 0) {
                         return InkWell(
                           onTap: () {

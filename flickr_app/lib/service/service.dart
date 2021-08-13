@@ -25,25 +25,23 @@ class AppService {
   Future<SearchModel> getSearchResults(String searchString, int page) async {
     var response = await httpGet(searchURL +
         searchString +
-        "&has_geo=1&per_page=6&page=" +
+        "&has_geo=1&per_page=10&page=" +
         page.toString() +
         "&format=json&nojsoncallback=1");
     var data = json.decode(response);
-
-    var result = SearchModel.fromJson(json.decode(response));
+    var result = SearchModel.fromJson(data);
     if (data != null) {
       result = SearchModel.fromJson(data);
     } else {
       throw "Can't get";
     }
-    for (var i in result.photos.photo) {
-      var aa = await getInfoResults(i.id);
-      i.desc = aa.photo.description.sContent;
-      i.owner = aa.photo.owner.username;
-
-      var bb = await getSizesResults(i.id);
-      i.url = bb.sizes.size[0].source;
-    }
+    // for (var i in result.photos.photo) {
+    //   var aa = await getInfoResults(i.id);
+    //   i.desc = aa.photo.description.sContent;
+    //   i.owner = aa.photo.owner.username;
+    //   var bb = await getSizesResults(i.id);
+    //   i.url = bb.sizes.size[0].source;
+    // }
     return result;
   }
 
@@ -51,7 +49,7 @@ class AppService {
     var response = await httpGet(
         getinfoURL + getinfoString + "&format=json&nojsoncallback=1");
     var data = json.decode(response);
-    var result = GetInfoModel.fromJson(json.decode(response));
+    var result = GetInfoModel.fromJson(data);
     if (data != null) {
       result = GetInfoModel.fromJson(data);
     } else {
@@ -64,7 +62,7 @@ class AppService {
     var response = await httpGet(
         getSizesURL + getsizeString + "&format=json&nojsoncallback=1");
     var data = json.decode(response);
-    var result = GetSizesModel.fromJson(json.decode(response));
+    var result = GetSizesModel.fromJson(data);
     if (data != null) {
       result = GetSizesModel.fromJson(data);
     } else {

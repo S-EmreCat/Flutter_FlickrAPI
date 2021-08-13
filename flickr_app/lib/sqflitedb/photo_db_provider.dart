@@ -11,7 +11,7 @@ class DatabaseHelper {
   String columndesc = "desc";
   String columnurl = "url";
   String columnisLiked = "isLiked";
-  static Database _database;
+  Database _database;
 
   Future<Database> get database async {
     if (_database == null) {
@@ -21,7 +21,7 @@ class DatabaseHelper {
   }
 
   Future<Database> initializeDatabase() async {
-    String dbPath = join(await getDatabasesPath(), "notes.db");
+    String dbPath = join(await getDatabasesPath(), "photos.db");
     var notesDb = await openDatabase(dbPath, version: 2, onCreate: createDb);
     return notesDb;
   }
@@ -40,6 +40,19 @@ class DatabaseHelper {
   Future<int> insert(Photo model) async {
     final photoMaps = await _database.insert(_photoTableName, model.toJson());
     return photoMaps;
+  }
+
+  Future<Photo> getItem(int id) async {
+    final photoMaps = await _database.query(
+      _photoTableName,
+      where: '$columnid = ?',
+      columns: [columnid],
+      whereArgs: [id],
+    );
+    if (photoMaps.isNotEmpty)
+      return Photo.fromJson(photoMaps.first);
+    else
+      return null;
   }
 
   Future<int> deleteList(int id) async {

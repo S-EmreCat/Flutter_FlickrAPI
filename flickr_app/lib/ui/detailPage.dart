@@ -31,25 +31,39 @@ class _DetailPageState extends State<DetailPage> {
   int clickedPhotoID;
 
   bool myisLiked = false;
-
   @override
   void initState() {
     super.initState();
+    print("1");
+    print(allPhotos);
     getPhotos();
+    print("2");
+    print(allPhotos);
+    setState(() {});
+    print("4");
+    print(allPhotos);
+    setState(() {});
+    print("5");
+    print(allPhotos);
   }
 
   void getPhotos() async {
-    var photoFuture = _databaseHelper.getAllNotes();
-    await photoFuture.then((data) {
-      print("detail page data geliyo");
-      setState(() {
-        this.allPhotos = data;
-      });
-      return this.allPhotos;
-    });
+    allPhotos = await _databaseHelper.getAllNotes();
+    print("getphotoiçi");
+
+    for (var item in allPhotos) {
+      if (item.id == widget.photoid) {
+        myisLiked = item.isLiked;
+      }
+      setState(() {});
+    }
+    print(allPhotos);
+    setState(() {});
+    print("getphotoiçisetstate");
+    print(allPhotos);
   }
 
-  getsize() async {
+  Future getsize() async {
     getsizeResult = await appService.getSizesResults(widget.photoid);
     return getsizeResult;
   }
@@ -70,6 +84,7 @@ class _DetailPageState extends State<DetailPage> {
   void deletePhoto() {
     if (myisLiked == false) {
       mydelete();
+      print("silindi");
     }
   }
 

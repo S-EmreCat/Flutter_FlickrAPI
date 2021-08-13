@@ -4,6 +4,7 @@ import 'package:stajproje/entities/getsizesModel.dart';
 import 'package:stajproje/entities/searchModel.dart';
 import 'package:stajproje/service/service.dart';
 import 'package:stajproje/ui/detailPage.dart';
+import 'package:stajproje/ui/favorites.dart';
 
 class SearchPage extends StatefulWidget {
   SearchPage({Key key, this.title}) : super(key: key);
@@ -27,8 +28,6 @@ class _SearchPageState extends State<SearchPage> {
   void initState() {
     super.initState();
     _scrollController.addListener(() {
-      // print("pixels: " + _scrollController.position.pixels.toString());
-      // print("extent" + _scrollController.position.maxScrollExtent.toString());
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
         search(lastSearchKey);
@@ -220,32 +219,71 @@ class _SearchPageState extends State<SearchPage> {
                     ),
             ),
             Container(
-              height: sh / 13,
-              child: (ElevatedButton(
-                onPressed: () {
-                  showAlertDialog(context);
-                  searchController.clear();
-                },
-                style: ElevatedButton.styleFrom(primary: Colors.white),
-                child: Ink(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [Color(0xffDBDBDB), Color(0xffeaeaea)]),
-                    ),
-                    constraints: BoxConstraints(minHeight: 50),
-                    alignment: Alignment.center,
-                    child: Text(
-                      "Search Bar",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.black),
+              height: sh / 10.5,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    width: (MediaQuery.of(context).size.width / 10) * 4.95,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => Favorites(),
+                          ),
+                        );
+                        debugPrint("favorites buton clicked");
+                      },
+                      style: ElevatedButton.styleFrom(primary: Colors.white),
+                      child: Ink(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [Color(0xffDBDBDB), Color(0xffeaeaea)]),
+                          ),
+                          constraints: BoxConstraints(minHeight: 50),
+                          alignment: Alignment.center,
+                          child: Text(
+                            "Favorites",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: Colors.black),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              )),
-            )
+                  Container(
+                    width: (MediaQuery.of(context).size.width / 10) * 4.95,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        showAlertDialog(context);
+                        searchController.clear();
+                      },
+                      style: ElevatedButton.styleFrom(primary: Colors.white),
+                      child: Ink(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [Color(0xffDBDBDB), Color(0xffeaeaea)]),
+                          ),
+                          constraints: BoxConstraints(minHeight: 50),
+                          alignment: Alignment.center,
+                          child: Text(
+                            "Search Bar",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: Colors.black),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
