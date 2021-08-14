@@ -135,7 +135,7 @@ class _DetailPageState extends State<DetailPage> {
                     IconButton(
                       icon: Icon(
                           myisLiked ? Icons.favorite : Icons.favorite_outline,
-                          color: myisLiked ? Colors.red : Colors.white),
+                          color: myisLiked ? Colors.red : Colors.greenAccent),
                       iconSize: 25,
                       onPressed: () {
                         setState(
