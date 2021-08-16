@@ -32,17 +32,19 @@ class DatabaseHelper {
   }
 
   Future<List<Photo>> getAllNotes() async {
-    Database db = await this.database;
-    List<Map> photoMaps = await db.query("$_photoTableName");
+    Database _database = await this.database;
+    List<Map> photoMaps = await _database.query("$_photoTableName");
     return photoMaps.map((e) => Photo.fromJson(e)).toList();
   }
 
   Future<int> insert(Photo model) async {
+    Database _database = await this.database;
     final photoMaps = await _database.insert(_photoTableName, model.toJson());
     return photoMaps;
   }
 
   Future<Photo> getItem(int id) async {
+    Database _database = await this.database;
     final photoMaps = await _database.query(
       _photoTableName,
       where: '$columnid = ?',
@@ -56,6 +58,7 @@ class DatabaseHelper {
   }
 
   Future<int> deleteList(int id) async {
+    Database _database = await this.database;
     final photoMaps = await _database.delete(
       _photoTableName,
       where: '$columnid=?',

@@ -66,30 +66,26 @@ class _SearchScreenState extends State<SearchScreen> {
     super.dispose();
   }
 
-  Future mydelete() async {
-    await _databaseHelper.deleteList(int.parse(getinfoResult.photo.id));
+  Future mydelete(id) async {
+    await _databaseHelper.deleteList(int.parse(id));
   }
 
-  void deletePhoto() {
+  void deletePhoto(id) {
     if (myisLiked == false) {
-      mydelete();
+      mydelete(id);
       print("silindi");
     }
   }
 
   void getPhotos() async {
     allPhotos = await _databaseHelper.getAllNotes();
-    print("getphotoiçi");
 
     for (var item in allPhotos) {
       if (item.id == getinfoResult.photo.id) {
         myisLiked = item.isLiked;
       }
-      setState(() {});
     }
-    print(allPhotos);
     setState(() {});
-    print("getphotoiçisetstate");
   }
 
   Future myinsert(photo.Photo myphoto) async {
@@ -305,10 +301,10 @@ class _SearchScreenState extends State<SearchScreen> {
                                   ),
                                   IconButton(
                                     icon: Icon(
-                                        myisLiked
+                                        data[index].isLiked
                                             ? Icons.favorite
                                             : Icons.favorite_outline,
-                                        color: myisLiked
+                                        color: data[index].isLiked
                                             ? Colors.red
                                             : Colors.greenAccent),
                                     iconSize: 25,
@@ -322,13 +318,17 @@ class _SearchScreenState extends State<SearchScreen> {
                                                       .description.sContent,
                                                   id: getinfoResult.photo.id,
                                                   url: getsizeResult
-                                                      .sizes.size[4].source,
+                                                      .sizes.size[0].source,
                                                   title: getinfoResult
                                                       .photo.title.sContent,
                                                   owner: getinfoResult
                                                       .photo.owner.username,
-                                                  isLiked: myisLiked))
-                                              : deletePhoto();
+                                                  isLiked: data[index].isLiked))
+                                              : deletePhoto(searchResult
+                                                  .photos.photo[index].id);
+                                          setState(() {
+                                            data[index].isLiked = myisLiked;
+                                          });
                                         },
                                       );
                                     },

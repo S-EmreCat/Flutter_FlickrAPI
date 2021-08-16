@@ -7,6 +7,6 @@ Future<void> main() async {
     // showPerformanceOverlay: true,
     theme: ThemeData(primarySwatch: Colors.indigo),
     debugShowCheckedModeBanner: false,
-    home: SearchScreen(),
+    home: TestScreen(),
   ));
 }

@@ -34,22 +34,12 @@ class _DetailPageState extends State<DetailPage> {
   @override
   void initState() {
     super.initState();
-    print("1");
-    print(allPhotos);
     getPhotos();
-    print("2");
-    print(allPhotos);
     setState(() {});
-    print("4");
-    print(allPhotos);
-    setState(() {});
-    print("5");
-    print(allPhotos);
   }
 
   void getPhotos() async {
     allPhotos = await _databaseHelper.getAllNotes();
-    print("getphotoiçi");
 
     for (var item in allPhotos) {
       if (item.id == widget.photoid) {
@@ -57,10 +47,8 @@ class _DetailPageState extends State<DetailPage> {
       }
       setState(() {});
     }
-    print(allPhotos);
+
     setState(() {});
-    print("getphotoiçisetstate");
-    print(allPhotos);
   }
 
   Future getsize() async {

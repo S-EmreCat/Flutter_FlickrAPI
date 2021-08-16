@@ -3,6 +3,9 @@ import 'package:stajproje/entities/getinfoModel.dart';
 import 'package:stajproje/entities/getsizesModel.dart';
 import 'package:stajproje/entities/searchModel.dart';
 import 'package:stajproje/service/service.dart';
+import 'package:stajproje/entities/photoModel.dart' as photo;
+
+import 'package:stajproje/sqflitedb/photo_db_provider.dart';
 import 'package:stajproje/ui/detailPage.dart';
 import 'package:stajproje/ui/favorites.dart';
 
@@ -21,7 +24,12 @@ class _TestScreenState extends State<TestScreen> {
   SearchModel searchResult = new SearchModel();
   GetInfoModel getinfoResult = new GetInfoModel();
   GetSizesModel getsizeResult = new GetSizesModel();
+
   ScrollController _scrollController = new ScrollController();
+  DatabaseHelper _databaseHelper = DatabaseHelper();
+  List<photo.Photo> allPhotos = <photo.Photo>[];
+
+  bool myisLiked = false;
   int page = 1;
   String lastSearchKey = "";
   @override
@@ -42,7 +50,6 @@ class _TestScreenState extends State<TestScreen> {
 
   getsize(String pid) async {
     getsizeResult = await service.getSizesResults(pid);
-    Future.delayed(Duration(seconds: 5), () => 1);
     return getsizeResult;
   }
 
@@ -58,6 +65,36 @@ class _TestScreenState extends State<TestScreen> {
     super.dispose();
   }
 
+  Future mydelete(id) async {
+    await _databaseHelper.deleteList(int.parse(id));
+  }
+
+  void deletePhoto(id) {
+    if (myisLiked == false) {
+      mydelete(id);
+      print("silindi");
+    }
+  }
+
+  void getPhotos() async {
+    allPhotos = await _databaseHelper.getAllNotes();
+
+    for (var item in allPhotos) {
+      if (item.id == getinfoResult.photo.id) {
+        myisLiked = item.isLiked;
+      }
+    }
+    setState(() {});
+  }
+
+  Future myinsert(photo.Photo myphoto) async {
+    await _databaseHelper.insert(myphoto);
+    print("eklendi");
+    setState(() {
+      getPhotos();
+    });
+  }
+
   search(String searchKey) async {
     if (searchKey != lastSearchKey) {
       page = 1;
@@ -67,19 +104,21 @@ class _TestScreenState extends State<TestScreen> {
       if (page < searchResult.photos.pages) {
         page = page + 1;
         var aa = await service.getSearchResults(searchKey, page);
-        for (var i in aa.photos.photo) {
-          searchResult.photos.photo.add(i);
-        }
+        searchResult.photos.photo += aa.photos.photo;
       }
     }
-    setState(() {});
+
+    setState(() {
+      for (var item in searchResult.photos.photo) {
+        myisLiked = item.isLiked;
+      }
+    });
     print("search key: ${searchController.text}");
   }
 
   @override
   Widget build(BuildContext context) {
     double sh = MediaQuery.of(context).size.height - 50;
-    // double sw = MediaQuery.of(context).size.width;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -93,7 +132,6 @@ class _TestScreenState extends State<TestScreen> {
       body: Container(
         child: Column(
           children: [
-            // PerformanceOverlay(),
             Expanded(
               // TODO: Future.builder ile yapmayı dene sayfayı
               child: searchResult.photos == null
@@ -152,102 +190,140 @@ class _TestScreenState extends State<TestScreen> {
                                             } else if (snapshoturl.hasError) {
                                               return Text("error");
                                             }
-                                            return CircularProgressIndicator();
+                                            return Text("");
                                           }),
                                     ),
-                                  Padding(
-                                    padding:
-                                        const EdgeInsets.fromLTRB(3, 0, 1, 0),
-                                    child: Container(
-                                      width: 230,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: [
-                                          Container(
-                                            padding:
-                                                EdgeInsets.fromLTRB(0, 2, 0, 3),
-                                            child: Text(
-                                              data[index].title,
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.w600),
+                                  Expanded(
+                                    child: Padding(
+                                      padding:
+                                          const EdgeInsets.fromLTRB(3, 0, 1, 0),
+                                      child: Container(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          children: [
+                                            Container(
+                                              padding: EdgeInsets.fromLTRB(
+                                                  0, 2, 0, 3),
+                                              child: Text(
+                                                data[index].title,
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.w600),
+                                              ),
                                             ),
-                                          ),
-                                          FutureBuilder(
-                                              future: getinfo(data[index].id),
-                                              builder: (context, snapshotinfo) {
-                                                if (snapshotinfo.hasData) {
-                                                  return Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.start,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Container(
-                                                        padding:
-                                                            EdgeInsets.fromLTRB(
-                                                                0, 0, 0, 2),
-                                                        child: Text(
-                                                          getinfoResult.photo
-                                                              .owner.username,
-                                                          maxLines: 2,
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
+                                            FutureBuilder(
+                                                future: getinfo(data[index].id),
+                                                builder:
+                                                    (context, snapshotinfo) {
+                                                  if (snapshotinfo.hasData) {
+                                                    return Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .start,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Container(
+                                                          padding: EdgeInsets
+                                                              .fromLTRB(
+                                                                  0, 0, 0, 2),
+                                                          child: Text(
+                                                            getinfoResult.photo
+                                                                .owner.username,
+                                                            maxLines: 2,
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                          ),
                                                         ),
-                                                      ),
-                                                      Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(2.0),
-                                                        child: Container(
-                                                          child: (getinfoResult
-                                                                      .photo
-                                                                      .description
-                                                                      .sContent ==
-                                                                  "")
-                                                              ? Text(
-                                                                  "no data",
-                                                                  style: TextStyle(
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w300,
-                                                                      fontSize:
-                                                                          12),
-                                                                )
-                                                              : Text(
-                                                                  getinfoResult
-                                                                      .photo
-                                                                      .description
-                                                                      .sContent,
-                                                                  maxLines: 2,
-                                                                  overflow:
-                                                                      TextOverflow
-                                                                          .ellipsis,
-                                                                  style: TextStyle(
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w300,
-                                                                      fontSize:
-                                                                          12),
-                                                                ),
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(2.0),
+                                                          child: Container(
+                                                            child: (getinfoResult
+                                                                        .photo
+                                                                        .description
+                                                                        .sContent ==
+                                                                    "")
+                                                                ? Text(
+                                                                    "no data",
+                                                                    style: TextStyle(
+                                                                        fontWeight:
+                                                                            FontWeight
+                                                                                .w300,
+                                                                        fontSize:
+                                                                            12),
+                                                                  )
+                                                                : Text(
+                                                                    getinfoResult
+                                                                        .photo
+                                                                        .description
+                                                                        .sContent,
+                                                                    maxLines: 2,
+                                                                    overflow:
+                                                                        TextOverflow
+                                                                            .ellipsis,
+                                                                    style: TextStyle(
+                                                                        fontWeight:
+                                                                            FontWeight
+                                                                                .w300,
+                                                                        fontSize:
+                                                                            12),
+                                                                  ),
+                                                          ),
                                                         ),
-                                                      ),
-                                                    ],
-                                                  );
-                                                } else if (snapshotinfo
-                                                    .hasError) {
-                                                  return Text("error");
-                                                }
-                                                return Text("");
-                                              }),
-                                        ],
+                                                      ],
+                                                    );
+                                                  } else if (snapshotinfo
+                                                      .hasError) {
+                                                    return Text("error");
+                                                  }
+                                                  return Text("");
+                                                }),
+                                          ],
+                                        ),
                                       ),
                                     ),
+                                  ),
+                                  IconButton(
+                                    icon: Icon(
+                                        data[index].isLiked
+                                            ? Icons.favorite
+                                            : Icons.favorite_outline,
+                                        color: data[index].isLiked
+                                            ? Colors.red
+                                            : Colors.greenAccent),
+                                    iconSize: 25,
+                                    onPressed: () {
+                                      myisLiked = !myisLiked;
+                                      myisLiked
+                                          ? myinsert(photo.Photo(
+                                              desc: getinfoResult
+                                                  .photo.description.sContent,
+                                              id: searchResult
+                                                  .photos.photo[index].id,
+                                              url: getsizeResult
+                                                  .sizes.size[0].source,
+                                              title: getinfoResult
+                                                  .photo.title.sContent,
+                                              owner: getinfoResult
+                                                  .photo.owner.username,
+                                              isLiked: data[index].isLiked))
+                                          : deletePhoto(searchResult
+                                              .photos.photo[index].id);
+                                      setState(
+                                        () {
+                                          data[index].isLiked = myisLiked;
+                                        },
+                                      );
+                                    },
                                   ),
                                 ],
                               ),

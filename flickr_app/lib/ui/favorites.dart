@@ -13,7 +13,6 @@ class Favorites extends StatefulWidget {
 class _FavoritesState extends State<Favorites> {
   DatabaseHelper _databaseHelper = DatabaseHelper();
   List<Photo> allPhotos = <Photo>[];
-  int clickedPhotoID;
   ScrollController _scrollController = new ScrollController();
 
   Future<void> futurefnx() async {
@@ -34,7 +33,6 @@ class _FavoritesState extends State<Favorites> {
   @override
   void initState() {
     super.initState();
-
     getPhotos();
     _scrollController.addListener(() {
       // print("pixels: " + _scrollController.position.pixels.toString());
@@ -42,6 +40,9 @@ class _FavoritesState extends State<Favorites> {
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
         debugPrint("scroll data");
+        setState(() {
+          getPhotos();
+        });
       }
     });
   }
@@ -60,12 +61,12 @@ class _FavoritesState extends State<Favorites> {
               if (snapshot.hasData) {
                 if (allPhotos.length == 0) {
                   return Center(
-                    child: Text("beğenilen foto bulunamadı"),
+                    child: Text("no favorite photo"),
                   );
                 } else
                   return ListView.builder(
                     scrollDirection: Axis.vertical,
-                    shrinkWrap: false,
+                    shrinkWrap: true,
                     controller: _scrollController,
                     physics: AlwaysScrollableScrollPhysics(),
 
