@@ -45,7 +45,7 @@ class _DetailPageState extends State<DetailPage> {
       if (item.id == widget.photoid) {
         myisLiked = item.isLiked;
       }
-      setState(() {});
+      // setState(() {});
     }
 
     setState(() {});

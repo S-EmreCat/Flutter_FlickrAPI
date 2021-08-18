@@ -25,7 +25,7 @@ class AppService {
   Future<SearchModel> getSearchResults(String searchString, int page) async {
     var response = await httpGet(searchURL +
         searchString +
-        "&has_geo=1&per_page=10&page=" +
+        "&has_geo=1&per_page=7&page=" +
         page.toString() +
         "&format=json&nojsoncallback=1");
     var data = json.decode(response);
@@ -35,13 +35,6 @@ class AppService {
     } else {
       throw "Can't get";
     }
-    // for (var i in result.photos.photo) {
-    //   var aa = await getInfoResults(i.id);
-    //   i.desc = aa.photo.description.sContent;
-    //   i.owner = aa.photo.owner.username;
-    //   var bb = await getSizesResults(i.id);
-    //   i.url = bb.sizes.size[0].source;
-    // }
     return result;
   }
 

@@ -16,8 +16,9 @@ class DatabaseHelper {
   Future<Database> get database async {
     if (_database == null) {
       _database = await initializeDatabase();
-    }
-    return _database;
+      return _database;
+    } else
+      return _database;
   }
 
   Future<Database> initializeDatabase() async {
@@ -28,9 +29,10 @@ class DatabaseHelper {
 
   void createDb(Database db, int version) async {
     await db.execute(
-        'CREATE TABLE $_photoTableName($columnid TEXT PRIMARY KEY,$columnowner TEXT,$columntitle TEXT,$columndesc TEXT,$columnurl TEXT,$columnisLiked BOOLEAN)');
+        'CREATE TABLE $_photoTableName($columnid TEXT PRIMARY KEY,$columnowner TEXT,$columntitle TEXT,$columndesc TEXT,$columnurl TEXT,$columnisLiked INT)');
   }
 
+// tüm db listeye dönüştürme
   Future<List<Photo>> getAllNotes() async {
     Database _database = await this.database;
     List<Map> photoMaps = await _database.query("$_photoTableName");
@@ -43,6 +45,7 @@ class DatabaseHelper {
     return photoMaps;
   }
 
+// istenilen id ye göre item sorgusu
   Future<Photo> getItem(int id) async {
     Database _database = await this.database;
     final photoMaps = await _database.query(

@@ -28,7 +28,6 @@ class _SearchScreenState extends State<SearchScreen> {
   ScrollController _scrollController = new ScrollController();
   DatabaseHelper _databaseHelper = DatabaseHelper();
   List<photo.Photo> allPhotos = <photo.Photo>[];
-  int clickedPhotoID;
 
   bool myisLiked = false;
   int page = 1;
@@ -43,20 +42,45 @@ class _SearchScreenState extends State<SearchScreen> {
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
         search(lastSearchKey);
-
         debugPrint("scroll get data");
       }
     });
   }
 
-  getsize(String pid) async {
+  Future search(String searchKey) async {
+    if (searchKey != lastSearchKey) {
+      page = 1;
+      lastSearchKey = searchKey;
+      searchResult = await service.getSearchResults(searchKey, page);
+    } else {
+      if (page < searchResult.photos.pages) {
+        page = page + 1;
+        // searchResult = await service.getSearchResults(searchKey, page);
+
+        var aa = await service.getSearchResults(searchKey, page);
+
+        searchResult.photos.photo += aa.photos.photo;
+        print("search key: ${searchController.text}");
+      }
+    }
+    setState(() {});
+    print(searchResult.photos.photo.length);
+
+    // setState(() {
+    //   for (var item in searchResult.photos.photo) {
+    //     myisLiked = item.isLiked;
+    //   }
+    // });
+    return searchResult;
+  }
+
+  Future getsize(String pid) async {
     getsizeResult = await service.getSizesResults(pid);
     return getsizeResult;
   }
 
   Future getinfo(String pid) async {
     getinfoResult = await service.getInfoResults(pid);
-
     return getinfoResult;
   }
 
@@ -90,37 +114,10 @@ class _SearchScreenState extends State<SearchScreen> {
 
   Future myinsert(photo.Photo myphoto) async {
     await _databaseHelper.insert(myphoto);
-  }
-
-  void savePhoto() {
-    if (myisLiked == true) {
-      myinsert(
-        photo.Photo(
-            desc: getinfoResult.photo.description.sContent,
-            title: getinfoResult.photo.title.sContent,
-            owner: getinfoResult.photo.owner.username,
-            url: getsizeResult.sizes.size[0].source,
-            id: getinfoResult.photo.id,
-            isLiked: myisLiked),
-      );
-      print("kaydedildi");
-    }
-  }
-
-  search(String searchKey) async {
-    if (searchKey != lastSearchKey) {
-      page = 1;
-      lastSearchKey = searchKey;
-      searchResult = await service.getSearchResults(searchKey, page);
-    } else {
-      if (page < searchResult.photos.pages) {
-        page = page + 1;
-        var aa = await service.getSearchResults(searchKey, page);
-        searchResult.photos.photo += aa.photos.photo;
-      }
-    }
-    setState(() {});
-    print("search key: ${searchController.text}");
+    print("eklendi");
+    setState(() {
+      getPhotos();
+    });
   }
 
   @override
@@ -132,7 +129,7 @@ class _SearchScreenState extends State<SearchScreen> {
         backgroundColor: Color(0xffE5E5E5),
         toolbarHeight: 50,
         title: Text(
-          "Search Page",
+          "Test Page",
           style: TextStyle(color: Colors.black),
         ),
       ),
@@ -157,78 +154,78 @@ class _SearchScreenState extends State<SearchScreen> {
                         var data = searchResult.photos.photo;
 
                         if (data.length > 0) {
-                          return InkWell(
-                            onTap: () {
-                              debugPrint(data[index].id);
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => DetailPage(
-                                    title: data[index].title,
-                                    photoid: data[index].id,
-                                  ),
-                                ),
-                              );
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(
-                                  width: 3,
-                                  color: Color(0xffEAEAEA),
-                                ),
-                              ),
-                              margin: EdgeInsets.fromLTRB(10, 5, 10, 0),
-                              padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
-                              child: Row(
-                                children: [
-                                  if (data[index].url == null)
-                                    Padding(
+                          return FutureBuilder(
+                              future: Future.wait([
+                                // search(searchController.text),
+                                getsize(data[index].id.toString()),
+                                getinfo(data[index].id.toString()),
+                              ]),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData) {
+                                  return InkWell(
+                                    onTap: () {
+                                      debugPrint(data[index].id);
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (context) => DetailPage(
+                                            title: data[index].title,
+                                            photoid: data[index].id,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(
+                                          width: 3,
+                                          color: Color(0xffEAEAEA),
+                                        ),
+                                      ),
+                                      margin: EdgeInsets.fromLTRB(10, 5, 10, 0),
                                       padding:
-                                          const EdgeInsets.fromLTRB(2, 5, 2, 5),
-                                      child: FutureBuilder(
-                                          future: getsize(data[index].id),
-                                          builder: (context, snapshoturl) {
-                                            if (snapshoturl.hasData) {
-                                              return Image.network(
-                                                getsizeResult
-                                                    .sizes.size[0].source
+                                          EdgeInsets.fromLTRB(10, 5, 10, 5),
+                                      child: Row(
+                                        children: [
+                                          if (data[index].url == null)
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.fromLTRB(
+                                                      2, 5, 2, 5),
+                                              child: Image.network(
+                                                snapshot.data[0].sizes.size[0]
+                                                    .source
                                                     .toString(),
-                                              );
-                                            } else if (snapshoturl.hasError) {
-                                              return Text("error");
-                                            }
-                                            return Text("");
-                                          }),
-                                    ),
-                                  Expanded(
-                                    child: Padding(
-                                      padding:
-                                          const EdgeInsets.fromLTRB(3, 0, 1, 0),
-                                      child: Container(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          children: [
-                                            Container(
-                                              padding: EdgeInsets.fromLTRB(
-                                                  0, 2, 0, 3),
-                                              child: Text(
-                                                data[index].title,
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: TextStyle(
-                                                    fontWeight:
-                                                        FontWeight.w600),
                                               ),
                                             ),
-                                            FutureBuilder(
-                                                future: getinfo(data[index].id),
-                                                builder:
-                                                    (context, snapshotinfo) {
-                                                  if (snapshotinfo.hasData) {
-                                                    return Column(
+                                          Expanded(
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.fromLTRB(
+                                                      3, 0, 1, 0),
+                                              child: Container(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  children: [
+                                                    Container(
+                                                      padding:
+                                                          EdgeInsets.fromLTRB(
+                                                              0, 2, 0, 3),
+                                                      child: Text(
+                                                        data[index].title,
+                                                        maxLines: 2,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w600),
+                                                      ),
+                                                    ),
+                                                    Column(
                                                       mainAxisAlignment:
                                                           MainAxisAlignment
                                                               .start,
@@ -241,8 +238,11 @@ class _SearchScreenState extends State<SearchScreen> {
                                                               .fromLTRB(
                                                                   0, 0, 0, 2),
                                                           child: Text(
-                                                            getinfoResult.photo
-                                                                .owner.username,
+                                                            snapshot
+                                                                .data[1]
+                                                                .photo
+                                                                .owner
+                                                                .username,
                                                             maxLines: 2,
                                                             overflow:
                                                                 TextOverflow
@@ -254,7 +254,8 @@ class _SearchScreenState extends State<SearchScreen> {
                                                               const EdgeInsets
                                                                   .all(2.0),
                                                           child: Container(
-                                                            child: (getinfoResult
+                                                            child: (snapshot
+                                                                        .data[1]
                                                                         .photo
                                                                         .description
                                                                         .sContent ==
@@ -269,7 +270,8 @@ class _SearchScreenState extends State<SearchScreen> {
                                                                             12),
                                                                   )
                                                                 : Text(
-                                                                    getinfoResult
+                                                                    snapshot
+                                                                        .data[1]
                                                                         .photo
                                                                         .description
                                                                         .sContent,
@@ -287,56 +289,59 @@ class _SearchScreenState extends State<SearchScreen> {
                                                           ),
                                                         ),
                                                       ],
-                                                    );
-                                                  } else if (snapshotinfo
-                                                      .hasError) {
-                                                    return Text("error");
-                                                  }
-                                                  return Text("");
-                                                }),
-                                          ],
-                                        ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          IconButton(
+                                            icon: Icon(
+                                                data[index].isLiked
+                                                    ? Icons.favorite
+                                                    : Icons.favorite_outline,
+                                                color: data[index].isLiked
+                                                    ? Colors.red
+                                                    : Colors.greenAccent),
+                                            iconSize: 25,
+                                            onPressed: () {
+                                              myisLiked = !myisLiked;
+                                              myisLiked
+                                                  ? myinsert(photo.Photo(
+                                                      desc: snapshot
+                                                          .data[1]
+                                                          .photo
+                                                          .description
+                                                          .sContent,
+                                                      id: searchResult.photos
+                                                          .photo[index].id,
+                                                      url: snapshot.data[0]
+                                                          .sizes.size[0].source,
+                                                      title: snapshot.data[1]
+                                                          .photo.title.sContent,
+                                                      owner: snapshot.data[1]
+                                                          .photo.owner.username,
+                                                      isLiked:
+                                                          data[index].isLiked))
+                                                  : deletePhoto(searchResult
+                                                      .photos.photo[index].id);
+                                              // setState(
+                                              //   () {
+                                              //     data[index].isLiked =
+                                              //         myisLiked;
+                                              //   },
+                                              // );
+                                            },
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                  ),
-                                  IconButton(
-                                    icon: Icon(
-                                        data[index].isLiked
-                                            ? Icons.favorite
-                                            : Icons.favorite_outline,
-                                        color: data[index].isLiked
-                                            ? Colors.red
-                                            : Colors.greenAccent),
-                                    iconSize: 25,
-                                    onPressed: () {
-                                      setState(
-                                        () {
-                                          myisLiked = !myisLiked;
-                                          myisLiked
-                                              ? myinsert(photo.Photo(
-                                                  desc: getinfoResult.photo
-                                                      .description.sContent,
-                                                  id: getinfoResult.photo.id,
-                                                  url: getsizeResult
-                                                      .sizes.size[0].source,
-                                                  title: getinfoResult
-                                                      .photo.title.sContent,
-                                                  owner: getinfoResult
-                                                      .photo.owner.username,
-                                                  isLiked: data[index].isLiked))
-                                              : deletePhoto(searchResult
-                                                  .photos.photo[index].id);
-                                          setState(() {
-                                            data[index].isLiked = myisLiked;
-                                          });
-                                        },
-                                      );
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
+                                  );
+                                } else if (snapshot.hasError) {
+                                  return Text("error");
+                                } else
+                                  return CircularProgressIndicator();
+                              });
                         } else if (searchResult.photos.photo.length == 0) {
                           return Container(
                             child: Text("sonuç bulunamadı"),
@@ -475,9 +480,10 @@ class _SearchScreenState extends State<SearchScreen> {
             margin: EdgeInsets.fromLTRB(0, 20, 0, 0),
             height: 50,
             child: (ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 Navigator.pop(context);
-                search(searchController.text);
+                await search(searchController.text);
+                setState(() {});
               },
               style: ElevatedButton.styleFrom(primary: Colors.white),
               child: Ink(

@@ -61,7 +61,7 @@ class Size {
   Size({this.label, this.source, this.url, this.media});
 
   Size.fromJson(Map<String, dynamic> json) {
-    label = json['label'];
+    label = json['label'].toString();
     source = json['source'];
     url = json['url'];
     media = json['media'];

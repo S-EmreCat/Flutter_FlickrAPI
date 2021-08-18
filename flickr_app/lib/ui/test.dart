@@ -36,26 +36,67 @@ class _TestScreenState extends State<TestScreen> {
   void initState() {
     super.initState();
     debugPrint("run");
+    getPhotos();
+
     _scrollController.addListener(() {
-      // print("pixels: " + _scrollController.position.pixels.toString());
-      // print("extent" + _scrollController.position.maxScrollExtent.toString());
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
         search(lastSearchKey);
-
         debugPrint("scroll get data");
       }
     });
   }
 
-  getsize(String pid) async {
+  List denemelist;
+
+  Future search(String searchKey) async {
+    if (searchKey != lastSearchKey) {
+      page = 1;
+      lastSearchKey = searchKey;
+      searchResult = await service.getSearchResults(searchKey, page);
+    } else {
+      if (page < searchResult.photos.pages) {
+        page = page + 1;
+        // searchResult = await service.getSearchResults(searchKey, page);
+
+        var aa = await service.getSearchResults(searchKey, page);
+
+        searchResult.photos.photo += aa.photos.photo;
+        print("search key: ${searchController.text}");
+      }
+    }
+    setState(() {});
+    print(searchResult.photos.photo.length);
+
+    setState(() {
+      for (var item in searchResult.photos.photo) {
+        myisLiked = item.isLiked;
+      }
+    });
+    return searchResult;
+  }
+
+  Future isliked() async {
+    for (var item in searchResult.photos.photo) {
+      var aa = item.id;
+      denemelist.add(aa);
+    }
+    for (var item in allPhotos) {
+      for (var i in denemelist) {
+        if (item.id == i) ;
+        myisLiked = true;
+        return myisLiked;
+      }
+    }
+  }
+
+  Future getsize(String pid) async {
     getsizeResult = await service.getSizesResults(pid);
     return getsizeResult;
   }
 
   Future getinfo(String pid) async {
     getinfoResult = await service.getInfoResults(pid);
-
     return getinfoResult;
   }
 
@@ -79,11 +120,6 @@ class _TestScreenState extends State<TestScreen> {
   void getPhotos() async {
     allPhotos = await _databaseHelper.getAllNotes();
 
-    for (var item in allPhotos) {
-      if (item.id == getinfoResult.photo.id) {
-        myisLiked = item.isLiked;
-      }
-    }
     setState(() {});
   }
 
@@ -93,27 +129,6 @@ class _TestScreenState extends State<TestScreen> {
     setState(() {
       getPhotos();
     });
-  }
-
-  search(String searchKey) async {
-    if (searchKey != lastSearchKey) {
-      page = 1;
-      lastSearchKey = searchKey;
-      searchResult = await service.getSearchResults(searchKey, page);
-    } else {
-      if (page < searchResult.photos.pages) {
-        page = page + 1;
-        var aa = await service.getSearchResults(searchKey, page);
-        searchResult.photos.photo += aa.photos.photo;
-      }
-    }
-
-    setState(() {
-      for (var item in searchResult.photos.photo) {
-        myisLiked = item.isLiked;
-      }
-    });
-    print("search key: ${searchController.text}");
   }
 
   @override
@@ -150,78 +165,79 @@ class _TestScreenState extends State<TestScreen> {
                         var data = searchResult.photos.photo;
 
                         if (data.length > 0) {
-                          return InkWell(
-                            onTap: () {
-                              debugPrint(data[index].id);
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => DetailPage(
-                                    title: data[index].title,
-                                    photoid: data[index].id,
-                                  ),
-                                ),
-                              );
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(
-                                  width: 3,
-                                  color: Color(0xffEAEAEA),
-                                ),
-                              ),
-                              margin: EdgeInsets.fromLTRB(10, 5, 10, 0),
-                              padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
-                              child: Row(
-                                children: [
-                                  if (data[index].url == null)
-                                    Padding(
+                          return FutureBuilder(
+                              future: Future.wait([
+                                // search(searchController.text),
+                                getsize(data[index].id.toString()),
+                                getinfo(data[index].id.toString()),
+                                isliked(),
+                              ]),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData) {
+                                  return InkWell(
+                                    onTap: () {
+                                      debugPrint(data[index].id);
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (context) => DetailPage(
+                                            title: data[index].title,
+                                            photoid: data[index].id,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(
+                                          width: 3,
+                                          color: Color(0xffEAEAEA),
+                                        ),
+                                      ),
+                                      margin: EdgeInsets.fromLTRB(10, 5, 10, 0),
                                       padding:
-                                          const EdgeInsets.fromLTRB(2, 5, 2, 5),
-                                      child: FutureBuilder(
-                                          future: getsize(data[index].id),
-                                          builder: (context, snapshoturl) {
-                                            if (snapshoturl.hasData) {
-                                              return Image.network(
-                                                getsizeResult
-                                                    .sizes.size[0].source
+                                          EdgeInsets.fromLTRB(10, 5, 10, 5),
+                                      child: Row(
+                                        children: [
+                                          if (data[index].url == null)
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.fromLTRB(
+                                                      2, 5, 2, 5),
+                                              child: Image.network(
+                                                snapshot.data[0].sizes.size[0]
+                                                    .source
                                                     .toString(),
-                                              );
-                                            } else if (snapshoturl.hasError) {
-                                              return Text("error");
-                                            }
-                                            return Text("");
-                                          }),
-                                    ),
-                                  Expanded(
-                                    child: Padding(
-                                      padding:
-                                          const EdgeInsets.fromLTRB(3, 0, 1, 0),
-                                      child: Container(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          children: [
-                                            Container(
-                                              padding: EdgeInsets.fromLTRB(
-                                                  0, 2, 0, 3),
-                                              child: Text(
-                                                data[index].title,
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: TextStyle(
-                                                    fontWeight:
-                                                        FontWeight.w600),
                                               ),
                                             ),
-                                            FutureBuilder(
-                                                future: getinfo(data[index].id),
-                                                builder:
-                                                    (context, snapshotinfo) {
-                                                  if (snapshotinfo.hasData) {
-                                                    return Column(
+                                          Expanded(
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.fromLTRB(
+                                                      3, 0, 1, 0),
+                                              child: Container(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  children: [
+                                                    Container(
+                                                      padding:
+                                                          EdgeInsets.fromLTRB(
+                                                              0, 2, 0, 3),
+                                                      child: Text(
+                                                        data[index].title,
+                                                        maxLines: 2,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w600),
+                                                      ),
+                                                    ),
+                                                    Column(
                                                       mainAxisAlignment:
                                                           MainAxisAlignment
                                                               .start,
@@ -234,8 +250,11 @@ class _TestScreenState extends State<TestScreen> {
                                                               .fromLTRB(
                                                                   0, 0, 0, 2),
                                                           child: Text(
-                                                            getinfoResult.photo
-                                                                .owner.username,
+                                                            snapshot
+                                                                .data[1]
+                                                                .photo
+                                                                .owner
+                                                                .username,
                                                             maxLines: 2,
                                                             overflow:
                                                                 TextOverflow
@@ -247,7 +266,8 @@ class _TestScreenState extends State<TestScreen> {
                                                               const EdgeInsets
                                                                   .all(2.0),
                                                           child: Container(
-                                                            child: (getinfoResult
+                                                            child: (snapshot
+                                                                        .data[1]
                                                                         .photo
                                                                         .description
                                                                         .sContent ==
@@ -262,7 +282,8 @@ class _TestScreenState extends State<TestScreen> {
                                                                             12),
                                                                   )
                                                                 : Text(
-                                                                    getinfoResult
+                                                                    snapshot
+                                                                        .data[1]
                                                                         .photo
                                                                         .description
                                                                         .sContent,
@@ -280,55 +301,57 @@ class _TestScreenState extends State<TestScreen> {
                                                           ),
                                                         ),
                                                       ],
-                                                    );
-                                                  } else if (snapshotinfo
-                                                      .hasError) {
-                                                    return Text("error");
-                                                  }
-                                                  return Text("");
-                                                }),
-                                          ],
-                                        ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          IconButton(
+                                            icon: Icon(
+                                                snapshot.data[2]
+                                                    ? Icons.favorite
+                                                    : Icons.favorite_outline,
+                                                color: snapshot.data[2]
+                                                    ? Colors.red
+                                                    : Colors.greenAccent),
+                                            iconSize: 25,
+                                            onPressed: () {
+                                              myisLiked = !myisLiked;
+                                              myisLiked
+                                                  ? myinsert(photo.Photo(
+                                                      desc: snapshot
+                                                          .data[1]
+                                                          .photo
+                                                          .description
+                                                          .sContent,
+                                                      id: searchResult.photos
+                                                          .photo[index].id,
+                                                      url: snapshot.data[0]
+                                                          .sizes.size[0].source,
+                                                      title: snapshot.data[1]
+                                                          .photo.title.sContent,
+                                                      owner: snapshot.data[1]
+                                                          .photo.owner.username,
+                                                      isLiked: myisLiked))
+                                                  : deletePhoto(searchResult);
+                                              setState(
+                                                () {
+                                                  data[index].isLiked =
+                                                      myisLiked;
+                                                },
+                                              );
+                                            },
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                  ),
-                                  IconButton(
-                                    icon: Icon(
-                                        data[index].isLiked
-                                            ? Icons.favorite
-                                            : Icons.favorite_outline,
-                                        color: data[index].isLiked
-                                            ? Colors.red
-                                            : Colors.greenAccent),
-                                    iconSize: 25,
-                                    onPressed: () {
-                                      myisLiked = !myisLiked;
-                                      myisLiked
-                                          ? myinsert(photo.Photo(
-                                              desc: getinfoResult
-                                                  .photo.description.sContent,
-                                              id: searchResult
-                                                  .photos.photo[index].id,
-                                              url: getsizeResult
-                                                  .sizes.size[0].source,
-                                              title: getinfoResult
-                                                  .photo.title.sContent,
-                                              owner: getinfoResult
-                                                  .photo.owner.username,
-                                              isLiked: data[index].isLiked))
-                                          : deletePhoto(searchResult
-                                              .photos.photo[index].id);
-                                      setState(
-                                        () {
-                                          data[index].isLiked = myisLiked;
-                                        },
-                                      );
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
+                                  );
+                                } else if (snapshot.hasError) {
+                                  return Text("error");
+                                } else
+                                  return CircularProgressIndicator();
+                              });
                         } else if (searchResult.photos.photo.length == 0) {
                           return Container(
                             child: Text("sonuç bulunamadı"),
@@ -467,9 +490,11 @@ class _TestScreenState extends State<TestScreen> {
             margin: EdgeInsets.fromLTRB(0, 20, 0, 0),
             height: 50,
             child: (ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 Navigator.pop(context);
-                search(searchController.text);
+                await search(searchController.text);
+                await isliked();
+                setState(() {});
               },
               style: ElevatedButton.styleFrom(primary: Colors.white),
               child: Ink(

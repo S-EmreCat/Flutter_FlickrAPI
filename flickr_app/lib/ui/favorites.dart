@@ -56,10 +56,10 @@ class _FavoritesState extends State<Favorites> {
         ),
         body: Container(
           child: FutureBuilder(
-            future: futurefnx(),
+            future: _databaseHelper.getAllNotes(),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
-                if (allPhotos.length == 0) {
+                if (snapshot.data.length == 0) {
                   return Center(
                     child: Text("no favorite photo"),
                   );
@@ -70,19 +70,17 @@ class _FavoritesState extends State<Favorites> {
                     controller: _scrollController,
                     physics: AlwaysScrollableScrollPhysics(),
 
-                    itemCount: allPhotos.length,
+                    itemCount: snapshot.data.length,
                     itemBuilder: (BuildContext context, int index) {
-                      var data = allPhotos;
-
-                      if (data.length > 0) {
+                      if (snapshot.data.length > 0) {
                         return InkWell(
                           onTap: () {
-                            debugPrint(data[index].id);
+                            debugPrint(snapshot.data[index].id);
                             Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (context) => DetailPage(
-                                  title: data[index].title,
-                                  photoid: data[index].id,
+                                  title: snapshot.data[index].title,
+                                  photoid: snapshot.data[index].id,
                                 ),
                               ),
                             );
@@ -100,12 +98,12 @@ class _FavoritesState extends State<Favorites> {
                             child: Container(
                               child: Row(
                                 children: [
-                                  if (data[index].url != null)
+                                  if (snapshot.data[index].url != null)
                                     Padding(
                                       padding:
                                           const EdgeInsets.fromLTRB(2, 5, 2, 5),
                                       child: Image.network(
-                                        data[index].url,
+                                        snapshot.data[index].url,
                                         filterQuality: FilterQuality.high,
                                       ),
                                     ),
@@ -124,7 +122,7 @@ class _FavoritesState extends State<Favorites> {
                                             padding:
                                                 EdgeInsets.fromLTRB(0, 2, 0, 3),
                                             child: Text(
-                                              data[index].title,
+                                              snapshot.data[index].title,
                                               maxLines: 2,
                                               overflow: TextOverflow.ellipsis,
                                               style: TextStyle(
@@ -135,7 +133,7 @@ class _FavoritesState extends State<Favorites> {
                                             padding:
                                                 EdgeInsets.fromLTRB(0, 0, 0, 2),
                                             child: Text(
-                                              data[index].owner,
+                                              snapshot.data[index].owner,
                                               maxLines: 2,
                                               overflow: TextOverflow.ellipsis,
                                             ),
@@ -143,7 +141,9 @@ class _FavoritesState extends State<Favorites> {
                                           Padding(
                                             padding: const EdgeInsets.all(2.0),
                                             child: Container(
-                                              child: (data[index].desc == "")
+                                              child: (snapshot
+                                                          .data[index].desc ==
+                                                      "")
                                                   ? Text(
                                                       "no data",
                                                       style: TextStyle(
@@ -152,7 +152,7 @@ class _FavoritesState extends State<Favorites> {
                                                           fontSize: 12),
                                                     )
                                                   : Text(
-                                                      data[index].desc,
+                                                      snapshot.data[index].desc,
                                                       maxLines: 2,
                                                       overflow:
                                                           TextOverflow.ellipsis,
